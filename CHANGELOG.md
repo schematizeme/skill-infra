@@ -2,6 +2,46 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/). Versionamento semântico.
 
+## [0.2.0] — 2026-08-20
+
+Propagação do piso **"efeito externo NUNCA sai de não-produção"** no recorte de INFRA: esta skill
+assume as **camadas 1 (DNS), 3 (rede/segredo) e 4 (provedor)** da defesa em profundidade definida
+na `schematize-engineering` (`references/efeitos-externos.md`) e as escreve como **IaC verificável**
+— origem: um laço de teste disparou **>5.000 e-mails reais**, queimou reputação de IP/domínio e
+derrubaria o **OTP de login** de produção.
+
+### Adicionado
+- **SKILL.md** — piso inegociável **10** ("Efeito externo NUNCA sai de não-produção — as camadas
+  de infra"): DNS em rota nula provado por `dig`, egress SMTP bloqueado em dev/hml, chave sandbox
+  por ambiente, subdomínio de envio separado e alerta de reputação; 3 linhas novas no mapa de
+  references; menção ao piso na `description` do frontmatter.
+- **references/iac.md** §7 — o *como* concreto: **Terraform/Cloudflare** do domínio de teste
+  (**null MX `MX 0 .` RFC 7505 + SPF `v=spf1 -all` + DMARC `p=reject`**) com verificação por `dig`;
+  **subdomínio de envio por ambiente** (`mail.<domain>` prd vs `mail-hml.<domain>` hml, DKIM/SPF
+  próprios, sandbox/configuration set separados); **egress SMTP 25/465/587/2525 bloqueado** em
+  dev/hml com receita para **NetworkPolicy (allowlist)**, **security group + NACL** e **nftables**
+  (`reject` e não `drop`, com counter exportado); gate de prova das camadas.
+- **references/segredos.md** §7 — **segredo por ambiente**: chave **sandbox** em não-prd, chave de
+  prd **inexistente** fora de prd via policy do cofre (exemplo Vault), seed/`.env.example` sem
+  credencial de provedor, regra de secret scan por prefixo (`SG.`/`re_`/`sk_live_`) e chave de prd
+  em artefato de não-prd tratada como **incidente com rotação imediata**; extensão a PSP/SMS/push/
+  webhook.
+- **references/observabilidade.md** §9 — **métrica de envio e alerta de reputação**: contadores
+  `mail_sent_total`/`mail_bounce_total`/`mail_complaint_total` (destinatário **hasheado**, nunca em
+  claro), regras Prometheus prontas para **bounce > 2%**, **complaint > 0,1%** e **envio real fora
+  de prd (página imediata)**, runbook de contenção (matar o job → revogar a chave → medir → pausar
+  → warm-up) e consumo do webhook de bounce/complaint do provedor.
+- **assets/CLAUDE.md** — piso sempre-on **10** com as quatro frentes de infra (DNS, rede, segredo,
+  provedor) e os vetos.
+
+### Mudado
+- **references/isolamento.md** §4 — o egress deny-by-default agora nomeia explicitamente o
+  **bloqueio de SMTP em dev/hml** (o bypass que o guard de aplicação não pega), apontando para
+  `iac.md` §7.3.
+- **references/entrega.md** §3 — config por ambiente passa a exigir **provider de efeito externo
+  resolvido na composição** (sink por default fora de prd, chave sandbox, remetente separado);
+  chave/remetente de prd nunca são promovidos junto com o artefato.
+
 ## [0.1.0] — 2026-08-15
 
 Primeira versão da skill de **infra/DevOps/SRE** da casa — a disciplina de operar sistema em

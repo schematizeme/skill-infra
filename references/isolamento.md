@@ -69,6 +69,10 @@ Isolar processo sem isolar rede é meio isolamento:
   **precisa** (banco daquele serviço, fila, o gateway) — nada de "aberto pra rede interna inteira".
 - **Sem `0.0.0.0/0`** em ingress a não ser no ponto de entrada público (e mesmo esse atrás de
   WAF/proxy). Egress também restrito onde der (bloqueia exfiltração e SSRF de saída).
+- **Egress SMTP (25/465/587/2525) bloqueado em dev/hml** — a camada de rede do piso "efeito externo
+  nunca sai de não-produção": ela pega o bypass que o guard de aplicação não pega (script solto,
+  `sendmail` do host, SDK chamado direto). `reject`, não `drop` (falha rápida e legível). Receita
+  em IaC — NetworkPolicy/SG/NACL/nftables — em `iac.md` §7.3.
 - **mTLS interno** entre serviços quando a malha permite (`resiliencia.md`) — identidade de
   serviço, não confiança por estar na mesma sub-rede.
 - **Um banco/schema por serviço** — o serviço não alcança o dado do vizinho (casa com o

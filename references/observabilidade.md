@@ -90,6 +90,52 @@ administrativa, break-glass de infra) vai pra **trilha de auditoria imutável** 
   overprovisioning, tags de billing consistentes na IaC, custo por request em serviço de alto
   volume. Observabilidade também mede **dinheiro**, não só latência.
 
+## 9. Efeito externo — métrica de envio e alerta de reputação
+
+Os **>5.000 e-mails** do incidente que originou o piso (`schematize-engineering` →
+`references/efeitos-externos.md`) só existiram porque **nada estava contando**. Todo projeto que
+envia qualquer coisa (e-mail, SMS/voz, push, webhook de terceiro, cobrança) instrumenta o envio e
+**alerta na reputação**, que é o ativo que não tem undo:
+
+- **Métrica obrigatória por envio** (real ou sinkado): `mail_sent_total{env,provider,template,
+  status}`, `mail_bounce_total`, `mail_complaint_total` — com `run_id` e **hash** do destinatário.
+  **Nunca o endereço em claro** no log/label (é PII — §2; e vira cardinalidade infinita).
+- **Limiares da indústria** (SES/Resend/Postmark suspendem a conta acima deles): **bounce > 2%**
+  e **complaint > 0,1%**. São **alerta crítico com runbook**, não painel pra olhar depois.
+- **Envio real fora de `prd` é página imediata** — não existe volume "aceitável" de e-mail real em
+  hml/dev. Também alerte o **contador da regra de firewall** que barra SMTP fora de prd
+  (`iac.md` §7.3): tentativa bloqueada é sinal de bypass tentado.
+
+```yaml
+# ops/iac/alerts/efeitos-externos.yaml — versionado com o servico, como todo alerta
+groups:
+  - name: efeitos-externos
+    rules:
+      - alert: EnvioRealForaDeProducao
+        expr: sum by (env) (increase(mail_sent_total{provider!="sink", env!="prd"}[5m])) > 0
+        for: 0m
+        labels: { severity: critical }
+        annotations:
+          summary: "e-mail REAL saindo de {{ $labels.env }} - parar o job e revogar a chave"
+          runbook_url: "<projeto>_archive/runbooks/efeito-externo.md"
+      - alert: BounceRateAcimaDoLimiar
+        expr: sum(rate(mail_bounce_total[1h])) / sum(rate(mail_sent_total[1h])) > 0.02
+        for: 15m
+        labels: { severity: critical }
+      - alert: ComplaintRateAcimaDoLimiar
+        expr: sum(rate(mail_complaint_total[1h])) / sum(rate(mail_sent_total[1h])) > 0.001
+        for: 15m
+        labels: { severity: critical }
+```
+
+- **Runbook do alerta** (obrigatório, §5): **1)** matar o job/laço e **revogar a chave** — nessa
+  ordem; **2)** medir enviados/bounce/complaint/spam trap no painel do provedor; **3)** acima do
+  limiar, **pausar todo envio** daquele subdomínio e abrir ticket com o provedor **antes** que ele
+  suspenda a conta; **4)** voltar por **warm-up** gradual, nunca no volume normal; **5)** o
+  post-mortem fecha **com a camada implantada**, não com "combinamos de tomar cuidado".
+- **Webhook de bounce/complaint do provedor** assinado e consumido (SNS/webhook) — é o que
+  alimenta os contadores acima; sem ele, você descobre a reputação queimada pelo suporte.
+
 > Regra de bolso: **se caiu e você foi olhar o dashboard, ele já tinha que estar lá.** Logs
 > estruturados sem PII, RED/USE, traço correlacionado, SLO que define "funcionando", alerta que
 > dói no usuário e aponta runbook, `/health` `/ready` `/metrics` sempre. Subiu com o serviço ou não

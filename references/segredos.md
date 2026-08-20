@@ -80,6 +80,38 @@ Segredo real encontrado no repo, em log, no rastro do archive, num screenshot �
 - **Token de CI escopado e efêmero** (`entrega.md` §7): sem segredo amplo, sem admin token; OIDC
   pra nuvem em vez de chave estática no secret do runner.
 
+## 7. Segredo POR AMBIENTE — chave de produção não existe fora de produção
+
+Caso especial e de dano assimétrico: **credencial de provedor de efeito externo** (e-mail/SMS/
+push/PSP). Aqui o vazamento não é o único risco — o **uso legítimo, no ambiente errado**, já é o
+incidente: um laço em hml com a chave de prd manda e-mail **de verdade**, queima a reputação do
+domínio e derruba o transacional de produção (inclusive o **OTP de login**). Piso da casa e
+normativa: `schematize-engineering` → `references/efeitos-externos.md`; as camadas de rede/DNS
+estão em `iac.md` §7.
+
+- **Chave de não-prd é SANDBOX, sempre.** Chave sandbox do provedor (SES sandbox, test key do
+  Resend/Postmark/Stripe/Twilio) no seed de dev/hml. **VETADO** "é a mesma chave, é só não usar".
+- **A chave de prd não EXISTE fora de prd** — e isso é enforcement do cofre, não disciplina.
+  O path é **por ambiente** e a policy do runtime de não-prd simplesmente **não enxerga** o de prd:
+
+```hcl
+# Vault policy do runtime de hml — least-privilege literal
+path "secret/data/<app>/hml/mail" { capabilities = ["read"] }
+# NAO existe stanza para secret/data/<app>/prd/* -> deny-by-default do Vault. Nem le, nem lista.
+```
+
+- **Seed por ambiente** (`isolamento.md` §5): `/<app>/.env` de dev/hml referencia o path sandbox
+  e traz `MAIL_PROVIDER=sink`; o `.env.example` do repo nunca carrega chave de provedor real,
+  nem "comentada pra facilitar".
+- **Secret scan com regra própria** pro prefixo do provedor (`SG.`, `re_`, `sk_live_`, `AKIA…`
+  com permissão de SES): achar **chave de prd num artefato/seed de não-prd** é **incidente** — vale
+  o §5 inteiro (**rotação imediata**), porque presume-se que ela já rodou fora do lugar.
+- **CI:** o job de dev/hml **não recebe** o secret de prd (environment protection do GitHub
+  Actions com secret escopado por environment, não secret de repo compartilhado — `entrega.md` §7).
+- Mesma regra para **PSP** (chave de teste, sempre), **SMS/voz** (credencial de teste + magic
+  numbers), **push** (APNs sandbox / projeto FCM de teste) e **webhook de terceiro** (endpoint de
+  sink interno, nunca a URL do parceiro).
+
 > Regra de bolso: **o repo, a imagem e o log não guardam segredo — o cofre guarda.** Nunca no
 > código, nunca no layer, nunca no bundle, nunca no log. Rotação documentada e exercida; scan que
 > trava; vazou = rotaciona **já**. O front pede ao servidor; o servidor lê do cofre.

@@ -44,6 +44,22 @@ agir — não trabalhe de memória. Segurança **ofensiva** (provar que fechou) 
    operação sensível vai pra **trilha de auditoria imutável**. O que não está no ops/IaC **não
    aconteceu**.
 
+10. **Efeito externo NUNCA sai de não-produção (e-mail, SMS/voz, push, webhook, cobrança) — as
+    camadas de INFRA.** **(a) DNS:** o domínio de teste `test.<domain>` é declarado na IaC com
+    **null MX (RFC 7505: `MX 0 .`) + SPF `v=spf1 -all` + DMARC `p=reject`** (ou TLD reservado
+    `.test`/`.invalid`/`.example`) e **provado por `dig`** no CI/`ops doctor`. **(b) Rede:**
+    **egress SMTP 25/465/587/2525 BLOQUEADO em dev/hml** (NetworkPolicy/SG/NACL/nftables — `reject`,
+    não `drop`), incluindo o egress pro endpoint real de PSP/webhook de parceiro. **(c) Segredo:**
+    chave **sandbox** no seed de não-prd; a **chave de prd não existe fora de prd** (policy do cofre
+    nega o path). **(d) Provedor:** **subdomínio de envio separado por ambiente**
+    (`mail.<domain>` prd vs `mail-hml.<domain>` hml, DKIM/SPF próprios na IaC) e **alerta** de
+    bounce > 2% / complaint > 0,1% + **envio real fora de prd = página imediata**. **VETADO** reusar
+    o remetente de prd fora de prd, enviar pelo domínio raiz e apontar o domínio de teste pra caixa
+    real. **Por quê:** bounce/complaint em massa **queima IP e domínio**, derruba o transacional de
+    **produção** (inclusive o **OTP de login**) e custa **semanas de warm-up**. Normativa:
+    `schematize-engineering` → `references/efeitos-externos.md`; o *como* de infra em `iac.md` §7,
+    `segredos.md` §7, `observabilidade.md` §9.
+
 ## Como se opera aqui
 
 - **Deploy (`/infra-deploy`):** fluxo fixo + artefato imutável com proveniência git + estratégia

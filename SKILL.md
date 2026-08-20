@@ -1,8 +1,8 @@
 ---
 name: schematize-infra
 metadata:
-  version: 0.1.0
-description: Infraestrutura/DevOps/SRE da casa — a disciplina de operar sistema em produção com blast radius mínimo, tudo declarado, tudo auditado e deny-by-default. Cobre isolamento por aplicação (um user Linux + systemd hardened + container por serviço, nunca root, nunca dois serviços no mesmo user — casando com o `<projeto>_ops` e o ops.md da engenharia), IaC (declarativo, idempotente, revisável — nada de mão no servidor; artefato imutável com proveniência git; drift detection), CI/CD com **deploy gated/manual** onde a casa exige (o fluxo fixo `dev local → teste local verde → GitHub → hml → prd`, nada pula etapa; o front deploya **manual/gated** na Vercel), containers & orquestração (não-root, read-only, distroless, multi-stage; rolling/blue-green/canary com healthcheck gating e rollback automatizado), gestão de segredos (nunca no repo/layer/env commitado — cofre + rotação documentada + secret scan que trava o merge), observabilidade (logs/métricas/traços correlacionados por `trace_id`, RED/USE, SLO com error budget, alertas versionados como código — serviço só é "pronto" com `/metrics` + dashboard + alerta + chart), backup & DR (RPO/RTO definidos, **restore testado** — backup sem restore provado não é backup), redes/TLS/hardening (TLS 1.2+, mTLS interno, deny-by-default no firewall/security group, least-privilege no IAM de nuvem) e cadeia de suprimentos (SBOM versionado junto ao artefato, pinning por digest `@sha256`, assinatura verificada na admissão — SLSA). Pisos inegociáveis (isolamento por app, deny-by-default, least-privilege, segredo fora do repo, deploy gated, restore testado, tudo auditado) que vetam o atalho inseguro. Use SEMPRE que for projetar, revisar, provisionar ou operar infra, deploy, CI/CD, container, orquestração, rede, TLS, segredo, backup/DR, observabilidade ou hardening — mesmo sem citar "infra". Pareia com a schematize-engineering (a BASE: ops §2/§21, observabilidade §16, cadeia de suprimentos, archive §28) e delega segurança ofensiva à schematize-pentest.
+  version: 0.2.0
+description: Infraestrutura/DevOps/SRE da casa — a disciplina de operar sistema em produção com blast radius mínimo, tudo declarado, tudo auditado e deny-by-default. Cobre isolamento por aplicação (um user Linux + systemd hardened + container por serviço, nunca root, nunca dois serviços no mesmo user — casando com o `<projeto>_ops` e o ops.md da engenharia), IaC (declarativo, idempotente, revisável — nada de mão no servidor; artefato imutável com proveniência git; drift detection), CI/CD com **deploy gated/manual** onde a casa exige (o fluxo fixo `dev local → teste local verde → GitHub → hml → prd`, nada pula etapa; o front deploya **manual/gated** na Vercel), containers & orquestração (não-root, read-only, distroless, multi-stage; rolling/blue-green/canary com healthcheck gating e rollback automatizado), gestão de segredos (nunca no repo/layer/env commitado — cofre + rotação documentada + secret scan que trava o merge), observabilidade (logs/métricas/traços correlacionados por `trace_id`, RED/USE, SLO com error budget, alertas versionados como código — serviço só é "pronto" com `/metrics` + dashboard + alerta + chart), backup & DR (RPO/RTO definidos, **restore testado** — backup sem restore provado não é backup), redes/TLS/hardening (TLS 1.2+, mTLS interno, deny-by-default no firewall/security group, least-privilege no IAM de nuvem) e cadeia de suprimentos (SBOM versionado junto ao artefato, pinning por digest `@sha256`, assinatura verificada na admissão — SLSA). Pisos inegociáveis (isolamento por app, deny-by-default, least-privilege, segredo fora do repo, deploy gated, restore testado, tudo auditado, **efeito externo nunca sai de não-produção** — domínio de teste em rota nula por DNS, egress SMTP bloqueado em dev/hml, chave sandbox e subdomínio de envio por ambiente) que vetam o atalho inseguro. Use SEMPRE que for projetar, revisar, provisionar ou operar infra, deploy, CI/CD, container, orquestração, rede, TLS, segredo, backup/DR, observabilidade ou hardening — mesmo sem citar "infra". Pareia com a schematize-engineering (a BASE: ops §2/§21, observabilidade §16, cadeia de suprimentos, archive §28) e delega segurança ofensiva à schematize-pentest.
 ---
 
 # Infraestrutura/DevOps/SRE da casa (schematize-infra)
@@ -19,7 +19,7 @@ interface única (§2), *que* o deploy segue o fluxo fixo (§21) e *que* observa
 (§16); esta skill é o **como** dessas frentes de infra, com pisos que vetam o atalho ("editei
 direto no prd", "botei o segredo no `.env` do repo", "o backup roda, nunca testei o restore").
 
-**Versão:** skill `schematize-infra` v0.1.0. Changelog em `CHANGELOG.md`.
+**Versão:** skill `schematize-infra` v0.2.0. Changelog em `CHANGELOG.md`.
 
 ## Comandos (Claude Code)
 
@@ -70,6 +70,9 @@ Mapa de references — leia o que casa com a tarefa:
 | Gestão de segredos: nunca no repo/layer, cofre, rotação, secret scan, referência pelo seed, rotação em caso de vazamento | `references/segredos.md` |
 | Observabilidade: logs/métricas/traços (RED/USE), SLO/error budget, alertas versionados, healthchecks, trilha de auditoria imutável | `references/observabilidade.md` |
 | Backup & DR (RPO/RTO, restore testado), redes/TLS/mTLS/hardening (deny-by-default, least-privilege), cadeia de suprimentos (SBOM/pinning/assinatura/SLSA) | `references/resiliencia.md` |
+| **Efeito externo fora de prd**: domínio de teste em rota nula (null MX/SPF/DMARC) em Terraform, subdomínio de envio por ambiente, egress SMTP bloqueado (SG/NACL/NetworkPolicy/nftables) | `references/iac.md` §7 |
+| **Chave de provedor de envio por ambiente**: sandbox em não-prd, chave de prd inexistente fora de prd (policy do cofre) | `references/segredos.md` §7 |
+| **Alerta de reputação**: métrica de envio, bounce > 2% / complaint > 0,1%, envio real fora de prd = página imediata | `references/observabilidade.md` §9 |
 
 ## Pisos inegociáveis (vetam o atalho)
 
@@ -109,6 +112,23 @@ Independente do reference, estes limites nunca são cruzados:
 9. **Tudo auditado, saída durável no archive.** Toda operação de infra passa pelo `<projeto>_ops`
    e **grava rastro** (§28): quem, quando, de qual commit, com qual resultado. Operação sensível
    vai pra **trilha de auditoria imutável**. O que não está no ops/IaC **não aconteceu**.
+
+10. **Efeito externo NUNCA sai de não-produção — e as camadas de infra são as que não dependem de
+    ninguém lembrar.** O piso é da `schematize-engineering` (`references/efeitos-externos.md`, 4
+    camadas); esta skill **é dona das camadas 1, 3 e 4**, e elas moram em **IaC**, não em combinado:
+    **(1) DNS** — `test.<domain>` declarado com **null MX (RFC 7505: `MX 0 .`) + SPF `v=spf1 -all` +
+    DMARC `p=reject`** (ou TLD reservado `.test`/`.invalid`/`.example`), **provado por `dig`** no CI/
+    `ops doctor`; **(3) rede e segredo** — **egress SMTP 25/465/587/2525 bloqueado em dev/hml**
+    (SG/NACL/NetworkPolicy/nftables, `reject` e não `drop`) e **chave sandbox** no seed de não-prd,
+    com a **chave de prd inexistente fora de prd** (policy do cofre nega o path); **(4) provedor** —
+    **subdomínio de envio separado por ambiente** (`mail.<domain>` em prd vs `mail-hml.<domain>` em
+    hml, DKIM/SPF próprios na IaC) pra **isolar reputação**, mais **alerta** de bounce > 2% /
+    complaint > 0,1% e de **envio real fora de prd** (página imediata). **VETADO** reusar o
+    remetente de prd fora de prd, enviar pelo domínio raiz, e deixar o domínio de teste apontando pra
+    caixa real. **Por quê:** bounce/complaint em massa **queima IP e domínio**, derruba o
+    transacional de **produção** — inclusive o **OTP de login** — e custa **semanas de warm-up**,
+    com utilidade zero. Não tem undo. Camada faltando é **bug de infra**, não descuido de quem rodou.
+    Detalhe: `iac.md` §7, `segredos.md` §7, `observabilidade.md` §9.
 
 ## Relação com as outras skills
 
