@@ -1,3 +1,4 @@
+<!-- cross-skill: cadeia-suprimentos.md -> schematize-engineering -->
 # Resiliência — backup & DR, rede/TLS/hardening, cadeia de suprimentos
 
 > Três frentes que decidem se o sistema **sobrevive** ao dia ruim: o dado volta depois do desastre

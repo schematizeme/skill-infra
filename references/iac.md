@@ -1,3 +1,4 @@
+<!-- cross-skill: efeitos-externos.md, operacao.md -> schematize-engineering -->
 # IaC — infra é código: declarativa, idempotente, revisável
 
 > A casa **não opera servidor na mão**. Toda infra nasce de **código versionado** — declarativo,
