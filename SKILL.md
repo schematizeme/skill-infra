@@ -1,7 +1,7 @@
 ---
 name: schematize-infra
 metadata:
-  version: 0.3.0
+  version: 0.4.0
 description: Infraestrutura/DevOps/SRE da casa — operar sistema em produção com blast radius mínimo, tudo declarado, tudo auditado, deny-by-default. Cobre isolamento por aplicação (um user Linux + systemd hardened + container por serviço, nunca root, nunca dois serviços no mesmo user), IaC (declarativo, idempotente, revisável; artefato imutável com proveniência git; drift detection), CI/CD com deploy gated no fluxo fixo dev local → teste local → GitHub → hml → prd, containers e orquestração (não-root, read-only, distroless, multi-stage; rolling/blue-green/canary com healthcheck e rollback), segredos (cofre + rotação + secret scan que trava o merge), observabilidade (logs/métricas/traços por trace_id, RED/USE, SLO com error budget, alertas como código), backup & DR (RPO/RTO, restore TESTADO), redes/TLS/hardening e cadeia de suprimentos (SBOM, pinning por digest, assinatura verificada). Use SEMPRE que for projetar, revisar, provisionar ou operar infra, deploy, CI/CD, container, rede, TLS, segredo, backup/DR ou hardening.
 ---
 
@@ -19,7 +19,7 @@ interface única (§2), *que* o deploy segue o fluxo fixo (§21) e *que* observa
 (§16); esta skill é o **como** dessas frentes de infra, com pisos que vetam o atalho ("editei
 direto no prd", "botei o segredo no `.env` do repo", "o backup roda, nunca testei o restore").
 
-**Versão:** skill `schematize-infra` v0.3.0. Changelog em `CHANGELOG.md`.
+**Versão:** skill `schematize-infra` v0.4.0. Changelog em `CHANGELOG.md`.
 
 ## Comandos (Claude Code)
 

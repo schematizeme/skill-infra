@@ -88,8 +88,10 @@ administrativa, break-glass de infra) vai pra **trilha de auditoria imutável** 
 
 ## 8. Metas de performance e FinOps
 
-- **Metas padrão** (sobrescrevíveis no `/docs/slo.md`): API p95 < 300ms, p99 < 1s, startup < 10s,
-  imagem Docker < 200MB (Go/Rust) / < 400MB (Node).
+- **As metas padrão são da base**, não daqui: `schematize-engineering` -> `references/observabilidade.md`
+  §30 ("Performance — Metas Padrão") tem a tabela (p95/p99, startup, tamanho de imagem), e metas
+  específicas do serviço a sobrescrevem no `/docs/slo.md`. *Repetir os números aqui era ter a mesma
+  tabela em dois lugares — e no dia em que um alvo mudar, um dos dois passa a mentir.*
 - **FinOps** (SHOULD): custo por serviço/tenant, budget com alerta de threshold, revisão de
   overprovisioning, tags de billing consistentes na IaC, custo por request em serviço de alto
   volume. Observabilidade também mede **dinheiro**, não só latência.

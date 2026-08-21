@@ -65,8 +65,18 @@ Nem todo deploy é automático — a casa **gateia** onde quer controle:
 
 ## 5. Orquestração e estratégia de deploy
 
-Kubernetes + Helm (chart versionado por serviço, entregue com o código); ou o `<projeto>_ops` em
-alvos mais simples. A estratégia casa com o risco:
+**O default da casa é `<projeto>_ops` sobre systemd/container, em servidor próprio** — é o que
+`isolamento.md` §2 e §5 descrevem (user Linux por serviço, unit hardened, layout `/<app>/`,
+provisionamento 100% pelo ops). **Kubernetes + Helm** é uma **decisão com ADR**, não o ponto de
+partida: ele paga quando há **escala horizontal real, muitos serviços e time que opera o cluster** —
+e cobra caro quando é adotado por um punhado de serviços, porque você troca "um systemd que você
+entende" por um plano de controle inteiro para manter, atualizar e depurar às 3h da manhã.
+
+*(As duas frases desta skill divergiam: aqui se fixava "Kubernetes + Helm" e lá se descrevia
+bare-metal/systemd como padrão. A ordem agora é uma só — e ela vale para as duas leituras: **a
+estratégia de deploy abaixo independe do alvo**.)*
+
+A estratégia casa com o risco:
 
 | Estratégia | Quando usar |
 |---|---|

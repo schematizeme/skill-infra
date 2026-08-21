@@ -4,6 +4,13 @@ Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https:
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 
+## [0.4.0] — 2026-08-21
+Segunda leva do saneamento (inventário da vistoria).
+
+### Corrigido
+- **Kubernetes deixou de ser o ponto de partida.** `entrega.md` §5 dizia "Kubernetes + Helm" enquanto `isolamento.md` descrevia bare-metal/systemd como padrão. Agora a ordem é uma: o **default é o `<projeto>_ops` sobre systemd/container**, e K8s é **decisão com ADR** — *você troca "um systemd que você entende" por um plano de controle inteiro para manter, atualizar e depurar às 3h da manhã*. E ficou dito que a estratégia de deploy (rolling/blue-green/canário) **independe do alvo**, que era o que fazia as duas frases parecerem incompatíveis.
+- **Tabela de metas de performance deixou de existir em dois lugares**: os números vivem na base (`schematize-engineering` §30) e esta skill aponta. *A mesma tabela em dois lugares significa que, no dia em que um alvo mudar, um dos dois passa a mentir.* (A duplicação geral, medida hoje bloco a bloco, é de **2/49** em `observabilidade.md` e **0/41** em `entrega.md` — bem menor que os ~60% estimados na vistoria.)
+
 ## [0.3.0] — 2026-08-21
 Os dois buracos que esta skill acusava nos outros. A vistoria de 2026-08-21: o piso 7 diz *"backup cujo restore nunca foi provado não é backup — é esperança"* e **não havia drill**; `isolamento.md`, `observabilidade.md` e `resiliencia.md` — os pisos 1, 6 e 7 — eram **normativa órfã**, sem comando nem gate.
 
