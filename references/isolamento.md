@@ -10,6 +10,11 @@ Isolamento não é um enfeite de segurança que se liga depois: é **pré-condi�
 produção. O objetivo é **blast radius contido** — se o atacante ganha um serviço, ele mexe **só
 naquele**, e os outros seguem protegidos. Defesa em profundidade por design.
 
+> **Gate:** `scripts/check-isolamento.sh` (comando `/infra-check`) cobra este capítulo nos artefatos
+> versionados — unit sem `User=` ou com root, sem `NoNewPrivileges`/`ProtectSystem`/`PrivateTmp`/
+> `ProtectHome`, `Dockerfile` sem `USER`, banco publicado no host. E repo **sem nenhum artefato**
+> sai `2`, não `0`: ausência não é conformidade, é provisionamento à mão (§6).
+
 ## 1. Um user Linux dedicado por serviço
 
 - **Um usuário Linux por serviço/repo.** `payle_core` roda como user `payle_core`; `payle_storage`

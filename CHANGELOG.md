@@ -1,6 +1,21 @@
 # Changelog — schematize-infra
 
-Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/). Versionamento semântico.
+Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
+com versionamento [SemVer](https://semver.org/lang/pt-BR/).
+
+
+## [0.3.0] — 2026-08-21
+Os dois buracos que esta skill acusava nos outros. A vistoria de 2026-08-21: o piso 7 diz *"backup cujo restore nunca foi provado não é backup — é esperança"* e **não havia drill**; `isolamento.md`, `observabilidade.md` e `resiliencia.md` — os pisos 1, 6 e 7 — eram **normativa órfã**, sem comando nem gate.
+
+### Adicionado
+- **`scripts/dr-drill.sh`** + **`/infra-drill`** — o DR drill executável: acha o backup, mede a **idade contra o RPO**, restaura num ambiente limpo, **cronometra contra o RTO** (em segundos — arredondar para minuto faria um RTO de 0 nunca ser estourado) e exige o **canário**. Grava `drill-<timestamp>.json` no archive. **Sem `comandos.verificar` não roda** (exit 2): *"o restore não deu erro"* é a esperança que o piso proíbe — restore que termina bem com o banco vazio é o caso que aparece de verdade.
+- **`dr-drill.sh --frescor`** — o drill que envelheceu deixa de valer. Reprova em três estados, incluindo o mais fácil de confundir com "tudo certo": **nenhum relatório**, isto é, restore nunca provado.
+- **`scripts/check-isolamento.sh`** e **`scripts/check-observabilidade.sh`** + **`/infra-check`** — os gates das duas normativas órfãs. Isolamento: unit sem `User=`/com root, hardening ausente, `Dockerfile` sem `USER`, banco com `ports:` publicado no host; **repo sem nenhum artefato sai `2`, não `0`** (ausência não é conformidade). Observabilidade: liveness e readiness ausentes ou **apontando para o mesmo handler** — o healthcheck vacuamente verdadeiro que manda tráfego para processo sem banco —, e PII/segredo dentro de chamada de log.
+- **`scripts/dr-drill.test.sh` (14 casos)** e **`scripts/check-infra.test.sh` (13 casos)** — os vermelhos. O principal é o `restore-ok-canario-ausente`: exit 0 do comando de restore, dado que não voltou.
+- **`assets/templates/drill.exemplo.json`** — os comandos são do projeto; a skill não conhece o banco, e não deve conhecer.
+
+### Mudado
+- `references/resiliencia.md` §1, `references/isolamento.md` e `references/observabilidade.md` abrem apontando para o gate que os executa.
 
 ## [0.2.0] — 2026-08-20
 

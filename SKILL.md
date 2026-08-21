@@ -1,7 +1,7 @@
 ---
 name: schematize-infra
 metadata:
-  version: 0.2.0
+  version: 0.3.0
 description: Infraestrutura/DevOps/SRE da casa — operar sistema em produção com blast radius mínimo, tudo declarado, tudo auditado, deny-by-default. Cobre isolamento por aplicação (um user Linux + systemd hardened + container por serviço, nunca root, nunca dois serviços no mesmo user), IaC (declarativo, idempotente, revisável; artefato imutável com proveniência git; drift detection), CI/CD com deploy gated no fluxo fixo dev local → teste local → GitHub → hml → prd, containers e orquestração (não-root, read-only, distroless, multi-stage; rolling/blue-green/canary com healthcheck e rollback), segredos (cofre + rotação + secret scan que trava o merge), observabilidade (logs/métricas/traços por trace_id, RED/USE, SLO com error budget, alertas como código), backup & DR (RPO/RTO, restore TESTADO), redes/TLS/hardening e cadeia de suprimentos (SBOM, pinning por digest, assinatura verificada). Use SEMPRE que for projetar, revisar, provisionar ou operar infra, deploy, CI/CD, container, rede, TLS, segredo, backup/DR ou hardening.
 ---
 
@@ -19,7 +19,7 @@ interface única (§2), *que* o deploy segue o fluxo fixo (§21) e *que* observa
 (§16); esta skill é o **como** dessas frentes de infra, com pisos que vetam o atalho ("editei
 direto no prd", "botei o segredo no `.env` do repo", "o backup roda, nunca testei o restore").
 
-**Versão:** skill `schematize-infra` v0.2.0. Changelog em `CHANGELOG.md`.
+**Versão:** skill `schematize-infra` v0.3.0. Changelog em `CHANGELOG.md`.
 
 ## Comandos (Claude Code)
 
@@ -31,12 +31,29 @@ Digite `/infra-help` pra ver todos. Em resumo:
 | `/infra-deploy` | audita/planeja o deploy **gated**: fluxo fixo (local→teste→git→hml→prd), artefato imutável com proveniência git, estratégia (rolling/blue-green/canary) + healthcheck gating + rollback; respeita o **manual/gated** onde a casa exige (ex.: front na Vercel) |
 | `/infra-iac` | audita/scaffolda a **IaC** (declarativa, idempotente, revisável), verifica drift, plan-before-apply, state seguro e o layout `/<app>/` + seed do `<projeto>_ops` |
 | `/infra-secrets` | audita a **gestão de segredos**: nada no repo/layer/env commitado, cofre + rotação documentada, secret scan que trava, referência pelo seed — sinaliza **rotação** se achar segredo vazado |
+| `/infra-drill` | **o restore que se prova**: restaura o backup num ambiente limpo, cronometra contra o RTO, confere o RPO e o **canário**, grava o relatório no archive — e `--frescor` reprova o drill que envelheceu |
+| `/infra-check` | roda os **gates** de isolamento e observabilidade sobre o repo (unit hardened, container não-root, banco não publicado, liveness ≠ readiness, log sem PII) |
 | `/infra-load` | carrega à força TODO o corpo normativo (isolamento, IaC, entrega, segredos, observabilidade, resiliência) e passa a aplicá-lo |
 | `/infra-claude` | cria ou mescla o `CLAUDE.md` sempre-on de infra na raiz do repo |
 | `/infra-cc` | context compact: gera handoff no archive e roda `/compact` |
 | `/infra-handoff` | gera o handoff (context.md + checklist.md) sem compactar |
 
 Os comandos ficam em `assets/commands/` e são instalados em `.claude/commands/`.
+
+## Artefatos executáveis
+
+A vistoria de 2026-08-21 achou dois buracos que esta skill acusava nos outros: o piso 7 diz
+*"backup cujo restore nunca foi provado não é backup — é esperança"* e **não havia drill**; e
+`isolamento.md`/`observabilidade.md`/`resiliencia.md` — os pisos 1, 6 e 7 — eram **normativa órfã**,
+sem comando nem gate. Agora:
+
+| Artefato | Cobre | Reprova quando |
+|---|---|---|
+| `scripts/dr-drill.sh` | `resiliencia.md` §1 | sem backup · backup mais velho que o RPO · restore falhou · **canário ausente com restore "bem-sucedido"** · RTO estourado (medido em segundos, para que RTO=0 não passe) |
+| `scripts/dr-drill.sh --frescor` | idem | nenhum relatório (restore **nunca** provado) · último drill velho demais · último drill reprovado |
+| `scripts/check-isolamento.sh` | `isolamento.md` | unit sem `User=` ou com root · sem hardening · `Dockerfile` sem `USER` · banco com `ports:` publicado · **repo sem artefato nenhum** (exit 2) |
+| `scripts/check-observabilidade.sh` | `observabilidade.md` | sem liveness/readiness · **readiness apelido do liveness** · PII/segredo em chamada de log |
+| `scripts/dr-drill.test.sh` · `scripts/check-infra.test.sh` | os gates | 27 casos ao todo, a maioria vermelhos de propósito |
 
 ## Como usar esta skill
 

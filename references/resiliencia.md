@@ -12,6 +12,11 @@
 - **RPO e RTO definidos por dado.** **RPO** (quanto de dado você aceita perder — a janela entre
   backups) e **RTO** (quanto tempo até voltar) são **decisão de negócio, escrita**, não implícita.
   Dado de billing tem RPO/RTO diferente de cache.
+> **O drill tem forma:** `scripts/dr-drill.sh` (comando `/infra-drill`). Ele restaura, cronometra
+> contra o RTO, confere a idade do backup contra o RPO e exige o **canário** — e `--frescor` reprova
+> o drill que envelheceu. Sem `comandos.verificar` ele nem roda: *"o restore não deu erro"* é a
+> esperança que este parágrafo proíbe.
+
 - **Backup cujo restore NUNCA foi testado NÃO é backup — é esperança.** O piso: **restore
   ensaiado periodicamente** (DR drill / game day) num ambiente limpo, cronometrado contra o RTO,
   verificado contra o RPO. Backup que ninguém restaurou é dado corrompido esperando o incidente pra
@@ -98,3 +103,67 @@ build e dependência como **superfície de ataque de primeira classe** (`cadeia-
 > padrão; o artefato só conta se você sabe exatamente o que tem dentro e quem o produziu.** RPO/RTO
 > escritos e ensaiados, deny-by-default na rede/IAM, TLS que renova sozinho, SBOM + pinning +
 > assinatura verificada. Sobreviver ao dia ruim é design, não sorte.
+
+## 7. Chaos engineering — o modo `chaos` tem dono, definição, oráculo e gate
+
+> **A `schematize-infra` é a dona do `chaos`.** Até 2026-08-21 ele era citado **12 vezes** na
+> `schematize-qa` (no CLI do test kit, no plano do `/qa-plan`, na matriz nightly, como passo
+> destrutivo com gate) e **não existia em lugar nenhum**: `grep -i chaos` na pentest, na
+> engineering e aqui dava **zero**. Um modo que **apaga serviço e derruba banco** sem dono,
+> definição, oráculo nem exemplo é pior que um modo inexistente — porque parece que alguém
+> pensou nele.
+
+**Definição.** Chaos não é "quebrar coisas para ver o que acontece": é **experimento controlado**
+que injeta uma falha **prevista** para verificar uma **hipótese explícita** sobre degradação
+graciosa (§6). Sem hipótese escrita antes, é sabotagem com relatório.
+
+**O experimento tem 5 partes — todas obrigatórias:**
+
+| Parte | O que é | Exemplo |
+|---|---|---|
+| **Estado estável** | a métrica que define "saudável", medida ANTES | p95 de `/checkout` < 400 ms, taxa de erro < 0,5% |
+| **Hipótese** | o que você afirma que continua valendo sob a falha | *"com o `payments` fora, `/checkout` responde 503 com `Retry-After` em < 1 s e nenhum pedido é perdido"* |
+| **Injeção** | a falha, escopada e reversível | matar o processo de UM serviço; cortar a rota para o banco réplica; injetar 300 ms de latência num upstream |
+| **Raio de explosão** | o limite declarado ANTES | 1 serviço, 1 zona, 5 minutos, ambiente ≤ hml |
+| **Abort** | a condição que **encerra o experimento sozinha** | estado estável violado por > 60 s → rollback automático |
+
+**Oráculo (o que faz o experimento PASSAR ou REPROVAR)** — e é aqui que ele deixa de ser teatro:
+
+- **PASSA** quando a hipótese se sustenta: a degradação foi **a prevista**, o alerta **disparou**,
+  o dado **não se perdeu** (outbox/fila reteve), e o sistema **voltou sozinho** ao estado estável
+  depois que a injeção parou.
+- **REPROVA** quando: cai em cascata (fere a independência de runtime — `schematize-engineering`
+  §2/§18), perde escrita aceita, **não** alerta, ou não se recupera sem intervenção manual.
+- **REPROVA TAMBÉM quando "não aconteceu nada"** — se derrubar a dependência não mudou métrica
+  nenhuma, ou o serviço não a usava, ou a injeção não pegou. *"Nada aconteceu" é resultado
+  inválido, não sucesso* — a mesma disciplina do verde-mentiroso.
+
+**Exemplo executável (o mínimo viável, sem plataforma de chaos):**
+
+```bash
+# hipótese: com o `payments` fora, /checkout degrada para 503 e nenhum pedido se perde.
+ops health --json > /tmp/antes.json                      # 1) estado estável
+systemctl stop payle-payments                            # 2) injeção escopada
+sleep 60                                                 # 3) raio: 60s, 1 serviço, hml
+curl -s -o /dev/null -w '%{http_code}\n' "$API/checkout"  # espera 503
+ops queue depth --queue orders                           # espera: reteve, não descartou
+systemctl start payle-payments                           # 4) reverte SEMPRE
+sleep 30 && ops health --json > /tmp/depois.json          # 5) voltou sozinho?
+diff <(jq -S . /tmp/antes.json) <(jq -S . /tmp/depois.json)
+```
+
+**Gate de segurança (inegociável):**
+
+- **Nunca em `prd` sem as cinco condições:** ADR aprovado, janela combinada, dono de plantão
+  presente, raio declarado e mecanismo de abort **testado antes**. Sem as cinco, chaos é `dev`/`hml`.
+- O test kit exige `<PROJECT>_CHAOS_ALLOW=1` **e** aprovação do plano (`/qa-plan`) — dois gates,
+  porque a variável sozinha é fácil demais de exportar sem pensar.
+- **Efeito externo continua valendo:** derrubar serviço não autoriza envio real
+  (`schematize-engineering` → `references/efeitos-externos.md`).
+- **Todo experimento vira registro** em `<projeto>_archive/` — hipótese, resultado, e o que mudou
+  por causa dele. Chaos que não gerou correção nem confirmação registrada foi só downtime.
+
+> **Fronteira:** a **`schematize-qa`** *invoca* o modo (é um passo da malha plan-first, destrutivo
+> e gated) e reporta o resultado; a **definição, o oráculo e o gate são desta skill**. A
+> **`schematize-pentest`** não é dona de chaos: ela prova **rejeição**, não **resiliência**.
+

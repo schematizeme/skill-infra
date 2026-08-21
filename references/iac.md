@@ -37,8 +37,24 @@ troca de máquina. "Cliquei no console da nuvem", "editei o `nginx.conf` no serv
 
 O state (Terraform/OpenTofu) é sensível e crítico:
 
-- **State remoto, versionado e com lock** (S3+DynamoDB, GCS, backend gerenciado) — nunca state
-  local commitado, nunca dois `apply` concorrentes sem lock (corrompe).
+- **State remoto, versionado e com lock** — nunca state local commitado, nunca dois `apply`
+  concorrentes sem lock (corrompe).
+  ✔ **Verificado em 2026-08-21** na doc do backend `s3`: o lock nativo é **`use_lockfile = true`**;
+  **`dynamodb_table` está DEPRECADO** (a própria doc o marca *"Optional, Deprecated"*). A tabela
+  DynamoDB só continua fazendo sentido em estado legado, e sair dela é tarefa, não opinião.
+  ```hcl
+  terraform {
+    backend "s3" {
+      bucket       = "acme-tfstate"
+      key          = "prd/core.tfstate"
+      region       = "us-east-1"
+      encrypt      = true
+      use_lockfile = true      # lock NATIVO do S3 — substitui dynamodb_table
+    }
+  }
+  ```
+  **Bucket com versionamento ligado** é parte do piso, não extra: é o que permite recuperar state
+  apagado por engano. Em GCS/AzureRM o lock é nativo do backend.
 - **State pode conter segredo** (ex.: senha gerada) — trate o backend como **dado confidencial**
   (cifrado em repouso, acesso restrito). Não versione state no git.
 - **Sem edição manual do state** (`state rm`/`import` só com intenção clara e registrada). Drift
@@ -106,33 +122,46 @@ locals {
   test_domain = "test.${var.domain}"   # destino de TODO endereco sintetico da casa
 }
 
+# Provider Cloudflare v5+: o recurso e `cloudflare_dns_record` (era `cloudflare_record` ate a v4),
+# e `ttl` e OBRIGATORIO. Verificado em 2026-08-21 na doc do provider (v5.23.0).
+# 1 = "automatic"; qualquer outro valor entre 60 e 86400.
+
 # Null MX (RFC 7505): "MX 0 ." = este dominio NAO aceita e-mail. O "." e literal (raiz do DNS).
-resource "cloudflare_record" "test_null_mx" {
+resource "cloudflare_dns_record" "test_null_mx" {
   zone_id  = var.cloudflare_zone_id
   name     = local.test_domain
   type     = "MX"
   priority = 0
   content  = "."
+  ttl      = 3600
   proxied  = false
   comment  = "RFC 7505 null MX - rota nula do dominio de teste (piso: efeitos externos)"
 }
 
 # Ninguem envia em nome do dominio de teste.
-resource "cloudflare_record" "test_spf" {
+resource "cloudflare_dns_record" "test_spf" {
   zone_id = var.cloudflare_zone_id
   name    = local.test_domain
   type    = "TXT"
   content = "v=spf1 -all"
+  ttl     = 3600
 }
 
 # Falha de alinhamento = REJEITA (nunca p=none, nunca p=quarantine).
-resource "cloudflare_record" "test_dmarc" {
+resource "cloudflare_dns_record" "test_dmarc" {
   zone_id = var.cloudflare_zone_id
   name    = "_dmarc.${local.test_domain}"
   type    = "TXT"
   content = "v=DMARC1; p=reject; sp=reject; rua=mailto:dmarc@${var.domain}"
+  ttl     = 3600
 }
 ```
+
+> **Este bloco é o piso de efeito externo virando infraestrutura** (ADR-0004): sem o null MX
+> publicado, o "domínio de teste em rota nula" é só um nome. Por isso ele **tem de aplicar** —
+> um exemplo que não é v4 nem v5 válido (recurso da v4 com argumento da v5 e sem o `ttl`
+> obrigatório) falha no `plan`, e quem tenta seguir o piso desiste dele. Achado da Classe E da
+> vistoria de 2026-08-21.
 
 - **Sem zona própria?** TLD reservado de **RFC 2606/6761**: `@*.test`, `@*.invalid`, `@*.example`.
   Não resolvem em lugar nenhum do mundo, **por norma** — rota nula sem precisar de DNS.

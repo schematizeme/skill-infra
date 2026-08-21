@@ -9,6 +9,10 @@ Um serviço só é **"pronto"** (§35) se expõe `/metrics`, emite logs estrutur
 com **dashboard + alertas + chart** versionados junto do código. Observabilidade que não subiu com
 o serviço não existe quando você precisa dela — às 3h da manhã, no incidente.
 
+> **Gate:** `scripts/check-observabilidade.sh` (comando `/infra-check`) cobra liveness e readiness
+> **distintos** (readiness que é apelido do liveness é healthcheck vacuamente verdadeiro), log sem
+> PII/segredo e SLO escrito.
+
 ## 1. Stack — LGTM+ e OpenTelemetry
 
 - **Instrumentação:** OpenTelemetry — traces, métricas e logs **correlacionados por `trace_id`**
