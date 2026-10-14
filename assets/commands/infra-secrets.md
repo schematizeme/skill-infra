@@ -41,3 +41,5 @@ Relatório: há segredo no repo/layer/log? cofre em uso? rotação documentada/e
 merge? — cada achado com **o quê + onde + severidade + o conserto** (e **rotação** onde houver
 exposição). Grave no `<projeto>_archive/`. A prova de que a porta ficou fechada (exposição
 explorável) é da `schematize-pentest`.
+
+Token de bot de chat: cofre, rotação e escopo mínimo em `schematize-bots → references/credenciais-e-token.md`.

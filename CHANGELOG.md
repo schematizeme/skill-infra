@@ -4,6 +4,12 @@ Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https:
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 
+## [0.7.1] — 2026-10-14
+Ponteiro para a skill nova `schematize-bots` (piso curto, sem duplicar).
+
+### Alterado
+- /infra-secrets cita token de bot.
+
 ## [0.7.0] — 2026-10-14
 Fecha o gate da skill-dev e aponta para as irmãs novas.
 
