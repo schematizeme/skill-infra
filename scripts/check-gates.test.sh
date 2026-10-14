@@ -98,4 +98,4 @@ checa "authorization no log reprova" 1 "PII/segredo em log" bash "$OBS" "$d"
 d="$TMP/obs-vazio"; mkdir -p "$d"; echo x > "$d/LEIA.md"
 checa "sem fonte nenhum nao passa por vacuidade" 2 "nada para verificar" bash "$OBS" "$d"
 
-echo; echo "check-infra: $ok ok, $fail falha(s)"; [ "$fail" = 0 ]
+echo; echo "check-gates: $ok ok, $fail falha(s)"; [ "$fail" = 0 ]

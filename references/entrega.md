@@ -48,7 +48,7 @@ Nem todo deploy é automático — a casa **gateia** onde quer controle:
 - **Provider de efeito externo é config de AMBIENTE, resolvida uma vez na composição:** fora de
   `prd` o default é o **sink** (`MAIL_PROVIDER=sink`), com chave **sandbox** e **subdomínio de
   envio separado** — nunca a chave/remetente de prd promovidos junto com o artefato. Detalhe e IaC
-  em `iac.md` §7 e `segredos.md` §7; a normativa é a `schematize-engineering`
+  em `iac-efeitos-externos.md` §7 e `segredos.md` §7; a normativa é a `schematize-engineering`
   (`references/efeitos-externos.md`).
 
 ## 4. Imagem de container — não-root, mínima, pinada

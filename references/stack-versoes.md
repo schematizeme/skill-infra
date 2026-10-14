@@ -28,7 +28,7 @@
 | **Provider Cloudflare** | **v5.x** (5.23.0). O recurso é **`cloudflare_dns_record`** (era `cloudflare_record` até a v4) e **`ttl` é obrigatório** (60–86400, ou 1 = automatic). |
 
 > **Por que este bloco importa mais que os outros:** é aqui que mora o DNS do **domínio de teste em
-> rota nula** (`references/iac.md`), que é o piso de efeito externo virando infraestrutura
+> rota nula** (`references/iac-efeitos-externos.md`), que é o piso de efeito externo virando infraestrutura
 > (ADR-0004). Um exemplo que não aplica — recurso da v4 com argumento da v5, sem o `ttl`
 > obrigatório — falha no `plan`, e quem tenta seguir o piso desiste dele.
 

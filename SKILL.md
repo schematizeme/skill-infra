@@ -2,7 +2,8 @@
 name: schematize-infra
 metadata:
   version: 0.4.0
-description: Infraestrutura/DevOps/SRE da casa — operar sistema em produção com blast radius mínimo, tudo declarado, tudo auditado, deny-by-default. Cobre isolamento por aplicação (um user Linux + systemd hardened + container por serviço, nunca root, nunca dois serviços no mesmo user), IaC (declarativo, idempotente, revisável; artefato imutável com proveniência git; drift detection), CI/CD com deploy gated no fluxo fixo dev local → teste local → GitHub → hml → prd, containers e orquestração (não-root, read-only, distroless, multi-stage; rolling/blue-green/canary com healthcheck e rollback), segredos (cofre + rotação + secret scan que trava o merge), observabilidade (logs/métricas/traços por trace_id, RED/USE, SLO com error budget, alertas como código), backup & DR (RPO/RTO, restore TESTADO), redes/TLS/hardening e cadeia de suprimentos (SBOM, pinning por digest, assinatura verificada). Use SEMPRE que for projetar, revisar, provisionar ou operar infra, deploy, CI/CD, container, rede, TLS, segredo, backup/DR ou hardening.
+description: >-
+  Infra/DevOps/SRE da casa: isolamento por serviço, IaC, CI/CD gated, containers, segredos, observabilidade, backup/DR, rede/TLS e cadeia de suprimentos. Use ao projetar, revisar ou operar infra, deploy, Dockerfile, Terraform, systemd unit, pipeline de CI, segredo, backup ou hardening.
 ---
 
 # Infraestrutura/DevOps/SRE da casa (schematize-infra)
@@ -53,7 +54,7 @@ sem comando nem gate. Agora:
 | `scripts/dr-drill.sh --frescor` | idem | nenhum relatório (restore **nunca** provado) · último drill velho demais · último drill reprovado |
 | `scripts/check-isolamento.sh` | `isolamento.md` | unit sem `User=` ou com root · sem hardening · `Dockerfile` sem `USER` · banco com `ports:` publicado · **repo sem artefato nenhum** (exit 2) |
 | `scripts/check-observabilidade.sh` | `observabilidade.md` | sem liveness/readiness · **readiness apelido do liveness** · PII/segredo em chamada de log |
-| `scripts/dr-drill.test.sh` · `scripts/check-infra.test.sh` | os gates | 27 casos ao todo, a maioria vermelhos de propósito |
+| `scripts/dr-drill.test.sh` · `scripts/check-gates.test.sh` | os gates | 27 casos ao todo, a maioria vermelhos de propósito |
 
 ## Como usar esta skill
 
@@ -70,8 +71,7 @@ sem comando nem gate. Agora:
 4. **Guarde o segredo fora** (`references/segredos.md`): nunca no repo, nunca em layer, nunca em
    `.env` commitado — cofre + rotação + secret scan que trava o merge.
 5. **Enxergue o sistema** (`references/observabilidade.md`): logs/métricas/traços correlacionados,
-   SLO com error budget, alertas versionados. Serviço sem `/metrics` + dashboard + alerta **não é
-   "pronto"**.
+   SLO com error budget, alertas versionados (o critério de "pronto" está no piso 6).
 6. **Sobreviva ao desastre** (`references/resiliencia.md`): RPO/RTO definidos, **restore testado**;
    rede deny-by-default, TLS 1.2+/mTLS, hardening; supply-chain (SBOM + pinning + assinatura).
 7. **Não trabalhe de memória** — os detalhes estão nos references. Aplique os pisos abaixo
@@ -87,7 +87,7 @@ Mapa de references — leia o que casa com a tarefa:
 | Gestão de segredos: nunca no repo/layer, cofre, rotação, secret scan, referência pelo seed, rotação em caso de vazamento | `references/segredos.md` |
 | Observabilidade: logs/métricas/traços (RED/USE), SLO/error budget, alertas versionados, healthchecks, trilha de auditoria imutável | `references/observabilidade.md` |
 | Backup & DR (RPO/RTO, restore testado), redes/TLS/mTLS/hardening (deny-by-default, least-privilege), cadeia de suprimentos (SBOM/pinning/assinatura/SLSA) | `references/resiliencia.md` |
-| **Efeito externo fora de prd**: domínio de teste em rota nula (null MX/SPF/DMARC) em Terraform, subdomínio de envio por ambiente, egress SMTP bloqueado (SG/NACL/NetworkPolicy/nftables); **gate de máquina em `scripts/check-external-effects.sh`** (distribuído nesta skill, vermelho provado em `scripts/check-external-effects.test.sh`) | `references/iac.md` §7 |
+| **Efeito externo fora de prd**: domínio de teste em rota nula (null MX/SPF/DMARC) em Terraform, subdomínio de envio por ambiente, egress SMTP bloqueado (SG/NACL/NetworkPolicy/nftables); **gate de máquina em `scripts/check-external-effects.sh`** (distribuído nesta skill, vermelho provado em `scripts/check-external-effects.test.sh`) | `references/iac-efeitos-externos.md` §7 |
 | **Chave de provedor de envio por ambiente**: sandbox em não-prd, chave de prd inexistente fora de prd (policy do cofre) | `references/segredos.md` §7 |
 | **Alerta de reputação**: métrica de envio, bounce > 2% / complaint > 0,1%, envio real fora de prd = página imediata | `references/observabilidade.md` §9 |
 
@@ -145,7 +145,7 @@ Independente do reference, estes limites nunca são cruzados:
     caixa real. **Por quê:** bounce/complaint em massa **queima IP e domínio**, derruba o
     transacional de **produção** — inclusive o **OTP de login** — e custa **semanas de warm-up**,
     com utilidade zero. Não tem undo. Camada faltando é **bug de infra**, não descuido de quem rodou.
-    Detalhe: `iac.md` §7, `segredos.md` §7, `observabilidade.md` §9.
+    Detalhe: `iac-efeitos-externos.md` §7, `segredos.md` §7, `observabilidade.md` §9.
 
 ## Relação com as outras skills
 

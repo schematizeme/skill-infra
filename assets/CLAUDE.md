@@ -57,7 +57,7 @@ agir — não trabalhe de memória. Segurança **ofensiva** (provar que fechou) 
     o remetente de prd fora de prd, enviar pelo domínio raiz e apontar o domínio de teste pra caixa
     real. **Por quê:** bounce/complaint em massa **queima IP e domínio**, derruba o transacional de
     **produção** (inclusive o **OTP de login**) e custa **semanas de warm-up**. Normativa:
-    `schematize-engineering` → `references/efeitos-externos.md`; o *como* de infra em `iac.md` §7,
+    `schematize-engineering` → `references/efeitos-externos.md`; o *como* de infra em `iac-efeitos-externos.md` §7,
     `segredos.md` §7, `observabilidade.md` §9.
 
 ## Como se opera aqui

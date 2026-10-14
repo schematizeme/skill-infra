@@ -4,6 +4,16 @@ Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https:
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 
+## [0.5.0] — 2026-10-14
+Gates com nome honesto, observabilidade sem duplicar a base, IaC dividido.
+
+### Corrigido
+- `scripts/check-infra.test.sh` não tinha `check-infra.sh` (testa `check-isolamento.sh` e `check-observabilidade.sh`): renomeado para `check-gates.test.sh`, referências atualizadas (`SKILL.md`, `assets/commands/infra-check.md`).
+- `SKILL.md`: "sem /metrics + dashboard + alerta" repetido; agora uma vez (piso 6).
+- `references/observabilidade.md`: stack LGTM, logs, RED/USE, tracing e auditoria viraram ponteiro para `schematize-engineering → references/observabilidade.md`; ficou o que é de infra (healthchecks, SLO/alertas, efeito externo).
+- `references/iac.md` (295 linhas) dividido: o §7 (DNS/rede/SMTP como código) foi para `references/iac-efeitos-externos.md`, mantendo a numeração §7.x; links atualizados.
+- `description` com 350 caracteres ou menos (era 1021).
+
 ## [0.4.0] — 2026-08-21
 Segunda leva do saneamento (inventário da vistoria).
 

@@ -87,7 +87,7 @@ push/PSP). Aqui o vazamento não é o único risco — o **uso legítimo, no amb
 incidente: um laço em hml com a chave de prd manda e-mail **de verdade**, queima a reputação do
 domínio e derruba o transacional de produção (inclusive o **OTP de login**). Piso da casa e
 normativa: `schematize-engineering` → `references/efeitos-externos.md`; as camadas de rede/DNS
-estão em `iac.md` §7.
+estão em `iac-efeitos-externos.md` §7.
 
 - **Chave de não-prd é SANDBOX, sempre.** Chave sandbox do provedor (SES sandbox, test key do
   Resend/Postmark/Stripe/Twilio) no seed de dev/hml. **VETADO** "é a mesma chave, é só não usar".

@@ -44,6 +44,6 @@ cronômetro.
 
 ## Provas
 
-`bash .claude/skills/schematize-infra/scripts/check-infra.test.sh` — 13 casos, 11 vermelhos de
+`bash .claude/skills/schematize-infra/scripts/check-gates.test.sh` — 13 casos, 11 vermelhos de
 propósito (User=root, unit sem hardening, Dockerfile sem USER, banco publicado, readiness apelido do
 liveness, senha e `authorization` em log, e os dois casos de "não passa por vacuidade").
