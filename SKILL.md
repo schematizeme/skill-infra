@@ -3,9 +3,8 @@ name: schematize-infra
 metadata:
   version: 0.5.0
 description: >-
-  Infra/DevOps/SRE: isolamento por serviço, IaC, CI/CD gated, containers, segredos, observabilidade, backup/DR,
-  rede/TLS e cadeia de suprimentos. Use ao projetar, revisar ou operar infra, deploy, Dockerfile, Terraform, systemd
-  unit, pipeline de CI, segredo, backup ou hardening.
+  Infra/SRE: isolamento por serviço, IaC, CI/CD gated, segredos, backup/DR, rede/TLS, supply chain. Use ao projetar ou
+  operar infra, deploy, systemd unit, pipeline ou hardening. Docker, Terraform, observabilidade: skills próprias.
 ---
 
 <!-- cross-skill: dockerfile.md, supply-chain.md, runtime.md -> schematize-docker -->

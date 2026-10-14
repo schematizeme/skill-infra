@@ -8,6 +8,7 @@ com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 A observabilidade ganhou dona (`schematize-observability`).
 
 ### Alterado
+- Description reduzida (≤235 chars) para caber no orçamento de listagem de skills (soma ≤8300); mesmo território, fronteiras com as irmãs preservadas.
 - `references/observabilidade.md` §1, §5 e §6 viram ponteiros para `schematize-observability` (padrão OTel, SLO/burn-rate, alertas com runbook, healthchecks); ficam só o encanamento de infra, §7, §8 e §9 (métrica e alerta de reputação de envio). Motivo: o mesmo tema vivia em quatro lugares com versões diferentes.
 
 A skill nova `schematize-docker` passa a ser dona do artefato/imagem e do runtime de container.
