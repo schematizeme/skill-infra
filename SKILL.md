@@ -1,7 +1,7 @@
 ---
 name: schematize-infra
 metadata:
-  version: 0.4.0
+  version: 0.5.0
 description: >-
   Infra/DevOps/SRE: isolamento por serviço, IaC, CI/CD gated, containers, segredos, observabilidade, backup/DR,
   rede/TLS e cadeia de suprimentos. Use ao projetar, revisar ou operar infra, deploy, Dockerfile, Terraform, systemd
@@ -22,7 +22,7 @@ interface única (§2), *que* o deploy segue o fluxo fixo (§21) e *que* observa
 (§16); esta skill é o **como** dessas frentes de infra, com pisos que vetam o atalho ("editei
 direto no prd", "botei o segredo no `.env` do repo", "o backup roda, nunca testei o restore").
 
-**Versão:** skill `schematize-infra` v0.4.0. Changelog em `CHANGELOG.md`.
+**Versão:** skill `schematize-infra` v0.5.0. Changelog em `CHANGELOG.md`.
 
 ## Comandos (Claude Code)
 
