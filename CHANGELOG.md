@@ -4,6 +4,12 @@ Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https:
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 
+## [Não lançado]
+Pendente de release (sem bump de versão): a observabilidade ganhou dona (`schematize-observability`).
+
+### Alterado
+- `references/observabilidade.md` §1, §5 e §6 viram ponteiros para `schematize-observability` (padrão OTel, SLO/burn-rate, alertas com runbook, healthchecks); ficam só o encanamento de infra, §7, §8 e §9 (métrica e alerta de reputação de envio). Motivo: o mesmo tema vivia em quatro lugares com versões diferentes.
+
 ## [0.5.0] — 2026-10-14
 Gates com nome honesto, observabilidade sem duplicar a base, IaC dividido.
 

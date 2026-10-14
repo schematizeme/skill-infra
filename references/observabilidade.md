@@ -3,7 +3,7 @@
 > Sistema que você não enxerga, você não opera — você reza. Todo serviço nasce com observabilidade
 > **integrada de ponta a ponta**: logs estruturados, métricas RED/USE, traços correlacionados,
 > **SLO com error budget** e alertas **versionados como código**. Nunca "a gente instrumenta
-> depois". Este reference é o *como* de infra do §16 da `schematize-engineering` (stack LGTM+).
+> depois". Este reference é o recorte de **infra** do §16 da `schematize-engineering`; o tema em si é da `schematize-observability`.
 
 Um serviço só é **"pronto"** (§35) se expõe `/metrics`, emite logs estruturados e traces, e sobe
 com **dashboard + alertas + chart** versionados junto do código. Observabilidade que não subiu com
@@ -13,36 +13,35 @@ o serviço não existe quando você precisa dela — às 3h da manhã, no incide
 > **distintos** (readiness que é apelido do liveness é healthcheck vacuamente verdadeiro), log sem
 > PII/segredo e SLO escrito.
 
-## 1. Stack, logs, métricas e tracing — são da base
+## 1. Stack, logs, métricas e tracing — são da `schematize-observability`
 
-O que é genérico mora em `schematize-engineering → references/observabilidade.md` (§16) e **não é repetido aqui**:
-stack LGTM+/OpenTelemetry (§16), logs JSON sem PII/segredo (§16.1), RED/USE (§16.2) e W3C Trace Context (§16.3).
-O que é **de infra**: a stack sobe **junto do serviço** (chart + dashboard + alertas na IaC, `iac.md`), segredo em log
-é incidente de vazamento (`segredos.md`), e retenção de log é definida por tipo — log não é banco de dados.
+> **A dona do tema é a `schematize-observability`.** O padrão OpenTelemetry, os três sinais, a
+> cardinalidade, a amostragem, o SLO/burn-rate, os dashboards e a stack de referência estão lá e
+> **não são repetidos aqui**. Os pisos da base (§16): `schematize-engineering -> references/observabilidade.md`.
 
-## 5. SLO, error budget e alertas úteis
+O que é **de infra**: a stack sobe **junto do serviço** (chart + dashboard + alertas na IaC, `iac.md`) e
+é ela mesma um conjunto de serviços com isolamento, TLS entre componentes e backup do que importa
+(`schematize-observability -> references/stack-referencia.md` §3); segredo em log é incidente de vazamento
+(`segredos.md`); retenção de log é definida por tipo — log não é banco de dados
+(`schematize-observability -> references/stack-referencia.md` §4).
 
-- **SLI/SLO por serviço** em `/docs/slo.md` (ex.: 99,9% das requests < 300ms). O SLO é a
-  **definição do que é "funcionando"** — sem ele, alerta é chute.
-- **Error budget:** consumido o orçamento de erro → **freeze de features** até recuperar. Prioriza
-  confiabilidade sobre feature quando o serviço está no vermelho.
-- **Alertas versionados como código** e **acionáveis**: alerta que dispara sobre **sintoma que dói
-  no usuário** (SLO burn rate, `/ready` falhando, fila crescendo sem parar), não sobre "CPU a 80%"
-  que ninguém sabe o que fazer. **Alerta que ninguém age vira ruído** — e ruído esconde o alerta
-  real. Cada alerta aponta um **runbook**.
-- **On-call** com runbook por alerta (RUNBOOK.md, §29 templates da engenharia).
+## 5. SLO, error budget e alertas — o que a infra entrega
+
+SLI/SLO por serviço em `/docs/slo.md`, error budget com freeze de feature e **alertas por burn-rate
+multi-window, de sintoma de usuário, com `severity`, `for` e `runbook_url`** são normativos em
+`schematize-observability -> references/slo-alertas.md` (gate `scripts/check-alertas.mjs`).
+A infra entrega o **encanamento**: as regras versionadas na IaC junto do serviço, o roteamento do
+Alertmanager por `severity` e por ambiente (hml não acorda ninguém), e o runbook de cada alerta
+(`schematize-docs`) — **alerta que ninguém age vira ruído, e ruído esconde o alerta real**.
 
 ## 6. Healthchecks — o contrato com o orquestrador
 
-Endpoints obrigatórios (o deploy/orquestração dependem deles — `entrega.md` §5):
-
-- **`/health`** — liveness (o processo está vivo; se falha, reinicia).
-- **`/ready`** — readiness (dependências OK, pronto pra tráfego; se falha, **sai do balanceador**
-  sem ser morto).
-- **`/metrics`** — Prometheus.
-
-Liveness e readiness **não são a mesma coisa**: matar o pod porque uma dependência piscou
-(liveness confundido com readiness) causa cascata. Readiness tira do tráfego; liveness reinicia.
+Endpoints obrigatórios (o deploy/orquestração dependem deles — `entrega.md` §5): **`/health`**
+(liveness; se falha, reinicia), **`/ready`** (readiness; se falha, **sai do balanceador** sem ser morto) e
+**`/metrics`** (Prometheus). O desenho completo (liveness != readiness != startup, drenagem, o que cada um
+checa) é de `schematize-observability -> references/healthchecks.md`. Aqui, o que é de infra: **probe,
+período, timeout e limiar configurados na IaC/orquestrador**, readiness do fleet inteiro falhando vira
+alerta, e matar o pod porque uma dependência piscou (liveness confundida com readiness) causa cascata.
 
 ## 7. Trilha de auditoria — imutável
 
