@@ -4,26 +4,25 @@ Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https:
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 
-## [Não lançado]
-Pendente de release (sem bump de versão): a observabilidade ganhou dona (`schematize-observability`).
+## [0.5.1] — 2026-10-14
+A observabilidade ganhou dona (`schematize-observability`).
 
 ### Alterado
 - `references/observabilidade.md` §1, §5 e §6 viram ponteiros para `schematize-observability` (padrão OTel, SLO/burn-rate, alertas com runbook, healthchecks); ficam só o encanamento de infra, §7, §8 e §9 (métrica e alerta de reputação de envio). Motivo: o mesmo tema vivia em quatro lugares com versões diferentes.
 
-## [Não lançado]
-Pendente de release (sem bump de versão): a skill nova `schematize-docker` passa a ser dona do artefato/imagem e do runtime de container.
+A skill nova `schematize-docker` passa a ser dona do artefato/imagem e do runtime de container.
 
 ### Alterado
 - `references/entrega.md` §4 (imagem de container), `references/isolamento.md` §3 (container por serviço), `references/resiliencia.md` §5 (imagem/hardening) e `references/segredos.md` §1 (segredo em camada) viram **ponteiro** para `schematize-docker -> references/dockerfile.md`, `-> supply-chain.md` e `-> runtime.md`; ficam aqui só o user Linux + systemd do host, o deploy consumindo imagem assinada por digest e a verificação na admissão.
 - `SKILL.md`: entrada da `schematize-docker` na "Relação com as outras skills" e no mapa de references.
 
-## [Não lançado]
 Entrada pendente (sem bump): a IaC específica de Terraform/OpenTofu ganha dona.
 
 ### Alterado
 - `references/iac.md`: o que era específico de Terraform/OpenTofu (backend `s3`, lock, criptografia, `state` manual, drift com `plan` agendado) virou princípio agnóstico de ferramenta + ponteiro para a nova `schematize-terraform` (`references/state.md`, `references/fluxo.md`). Mantido o que vale para qualquer ferramenta declarativa: declarativa/idempotente/revisável, plan-before-apply, state protegido, drift, GitOps, ops como interface única.
 - `references/iac-efeitos-externos.md`: nota de fronteira (o piso de efeito externo fica aqui; o *como* escrever e aplicar o HCL é da `schematize-terraform`).
 - `SKILL.md`, `assets/commands/infra-iac.md` e `references/stack-versoes.md`: ponteiros para a `schematize-terraform`; os números de Terraform/OpenTofu passam a ser mantidos lá.
+
 
 ## [0.5.0] — 2026-10-14
 Gates com nome honesto, observabilidade sem duplicar a base, IaC dividido.
