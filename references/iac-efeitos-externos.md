@@ -2,6 +2,11 @@
 # IaC — efeito externo fora de prd (DNS, rede e provedor como código)
 
 > Continuação de `iac.md` (§7), separada por ferramenta/tema: Terraform de DNS, NetworkPolicy, SG/NACL e nftables.
+>
+> **Fronteira.** Aqui mora o **piso de efeito externo** (o que a plataforma exige e por quê). Como
+> escrever, versionar, testar e aplicar o HCL dos exemplos (pins, lock file, módulo, plan/apply
+> gated, política no plan): `schematize-terraform`. Os exemplos usam o provider Cloudflare v5; o
+> estado atual dos providers fica em `schematize-terraform → references/stack-versoes.md`.
 
 ## 7. Efeito externo fora de prd — DNS, rede e provedor como CÓDIGO
 

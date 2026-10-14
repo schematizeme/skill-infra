@@ -3,7 +3,9 @@ description: schematize-infra — audita/scaffolda a IaC (declarativa, idempoten
 argument-hint: "[dir de infra/ops, ex: <projeto>_ops | infra/]"
 ---
 
-Audite/scaffolda a **Infra como Código** deste projeto (`references/iac.md`). Princípio: **o que
+Audite/scaffolda a **Infra como Código** deste projeto (`references/iac.md`). Se a IaC é
+Terraform/OpenTofu, o detalhe da ferramenta (state, módulos, pins, fluxo plan/apply, drift) é da
+`schematize-terraform` (`/tf-review`, `/tf-plan`, `/tf-drift`); aqui fica a visão de plataforma. Princípio: **o que
 não está em código não existe** — nada de mão no servidor. Alvo: `${ARGUMENTS:-<projeto>_ops}`.
 
 ## 1. Os três atributos (§1)

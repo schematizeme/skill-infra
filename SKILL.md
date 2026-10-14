@@ -86,7 +86,7 @@ Mapa de references — leia o que casa com a tarefa:
 | Tarefa | Reference |
 |---|---|
 | Isolamento por aplicação: user Linux dedicado + systemd hardened + container por serviço, blast radius, layout `/<app>/`, provisionamento pelo ops | `references/isolamento.md` |
-| IaC declarativa/idempotente/revisável, plan-before-apply, state seguro, drift detection, artefato imutável, o ops como interface única | `references/iac.md` |
+| IaC declarativa/idempotente/revisável, plan-before-apply, state seguro, drift detection, artefato imutável, o ops como interface única (agnóstico de ferramenta; **Terraform/OpenTofu em si** — estrutura, state, módulos, segredos, fluxo, testes — é da `schematize-terraform`) | `references/iac.md` · `schematize-terraform → references/fluxo.md` |
 | CI/CD com deploy **gated/manual**, fluxo fixo de promoção, estratégia de deploy + healthcheck gating + rollback (a **imagem** — Dockerfile, BuildKit, compose, SBOM/assinatura, tag imutável — é da `schematize-docker`) | `references/entrega.md` |
 | Gestão de segredos: nunca no repo/layer, cofre, rotação, secret scan, referência pelo seed, rotação em caso de vazamento | `references/segredos.md` |
 | Observabilidade: logs/métricas/traços (RED/USE), SLO/error budget, alertas versionados, healthchecks, trilha de auditoria imutável | `references/observabilidade.md` |

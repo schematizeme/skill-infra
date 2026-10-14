@@ -1,4 +1,5 @@
 <!-- cross-skill: efeitos-externos.md, operacao.md -> schematize-engineering -->
+<!-- cross-skill: state.md, fluxo.md, segredos.md, estrutura.md, versoes-e-modulos.md, qualidade.md, ferramenta.md -> schematize-terraform -->
 # IaC — infra é código: declarativa, idempotente, revisável
 
 > A casa **não opera servidor na mão**. Toda infra nasce de **código versionado** — declarativo,
@@ -6,6 +7,13 @@
 > detection**. O servidor é **imutável por edição manual**: recebe só artefato promovido do git.
 > Este reference é o *como* do "nada de mão no servidor" da `schematize-engineering` (operacao.md
 > §21, ops.md §2). O control plane que executa é o **`<projeto>_ops`**.
+
+> **Fronteira.** Este arquivo guarda o que vale para **qualquer** ferramenta declarativa (Terraform/
+> OpenTofu, Helm, Kustomize, cloud-init, Ansible declarativo). Tudo o que é **específico de
+> Terraform/OpenTofu** — escolha da ferramenta, layout de repo, backend e criptografia do state, pins
+> e lock file, contrato de módulo, `ephemeral`/write-only, fluxo de plan/apply no CI, `moved`/`import`/
+> `removed`, testes e política — é da **`schematize-terraform`** e mora lá. Abaixo, onde o texto
+> era de Terraform, ficou o princípio e um ponteiro.
 
 O que não está em código **não existe**: não é reproduzível, não é revisável, não sobrevive a uma
 troca de máquina. "Cliquei no console da nuvem", "editei o `nginx.conf` no servidor", "rodei um
@@ -32,39 +40,30 @@ troca de máquina. "Cliquei no console da nuvem", "editei o `nginx.conf` no serv
   de aprovar (troca de atributo imutável costuma forçar replace).
 - **Apply gated em prd** (`entrega.md`): plan revisado → aprovação → apply. Preferir apply pelo
   **CI/ops**, não da máquina do dev (proveniência + auditoria).
+- **Terraform/OpenTofu:** plan salvo como artefato, apply só desse plan, environment protegido,
+  rito de leitura do plan e break-glass: `schematize-terraform → references/fluxo.md`.
 
 ## 3. State — a fonte da verdade, protegida
 
-O state (Terraform/OpenTofu) é sensível e crítico:
+O state (Terraform/OpenTofu e afins) é sensível e crítico. O piso de plataforma:
 
 - **State remoto, versionado e com lock** — nunca state local commitado, nunca dois `apply`
-  concorrentes sem lock (corrompe).
-  ✔ **Verificado em 2026-08-21** na doc do backend `s3`: o lock nativo é **`use_lockfile = true`**;
-  **`dynamodb_table` está DEPRECADO** (a própria doc o marca *"Optional, Deprecated"*). A tabela
-  DynamoDB só continua fazendo sentido em estado legado, e sair dela é tarefa, não opinião.
-  ```hcl
-  terraform {
-    backend "s3" {
-      bucket       = "acme-tfstate"
-      key          = "prd/core.tfstate"
-      region       = "us-east-1"
-      encrypt      = true
-      use_lockfile = true      # lock NATIVO do S3 — substitui dynamodb_table
-    }
-  }
-  ```
-  **Bucket com versionamento ligado** é parte do piso, não extra: é o que permite recuperar state
-  apagado por engano. Em GCS/AzureRM o lock é nativo do backend.
+  concorrentes sem lock (corrompe). Bucket do state com **versionamento ligado** é parte do piso:
+  é o que permite recuperar state apagado por engano.
 - **State pode conter segredo** (ex.: senha gerada) — trate o backend como **dado confidencial**
   (cifrado em repouso, acesso restrito). Não versione state no git.
-- **Sem edição manual do state** (`state rm`/`import` só com intenção clara e registrada). Drift
-  entre state e mundo real é bug a corrigir, não a ignorar.
+- **Sem edição manual do state**; drift entre state e mundo real é bug a corrigir, não a ignorar.
+- **Um state por ambiente e por stack** (blast radius), com credencial separada para prd.
+
+O *como* em Terraform/OpenTofu — backend `s3` com `use_lockfile` (o `dynamodb_table` está
+deprecado), criptografia nativa do state no OpenTofu, `moved`/`import`/`removed` no lugar de
+`state mv` —: `schematize-terraform → references/state.md` e `references/fluxo.md`.
 
 ## 4. Drift detection — o mundo não pode divergir do código
 
 - **Drift = o servidor divergiu do git.** Alguém editou na mão, um processo mudou algo, a nuvem
-  reconciliou diferente. O ops/IaC **detecta e alerta** (`terraform plan` agendado, `driftctl`,
-  reconciliação do GitOps).
+  reconciliou diferente. O ops/IaC **detecta e alerta** (plan agendado, reconciliação do GitOps;
+  receita de Terraform/OpenTofu com `plan -detailed-exitcode`: `schematize-terraform → references/fluxo.md` §4).
 - **A correção do drift é re-aplicar o código, não editar de novo na mão.** Se o código está certo
   e o mundo divergiu, o `apply` traz de volta. Se a mudança manual era legítima, ela **vira
   código** — e aí some do drift. O drift nunca "vira o normal".

@@ -21,6 +21,11 @@
 
 ## Terraform / OpenTofu
 
+> **Atenção:** os números de Terraform/OpenTofu e providers são mantidos pela `schematize-terraform`
+> (`schematize-terraform → references/stack-versoes.md`, verificado em 2026-10-14: OpenTofu 1.13.x,
+> Terraform 1.16.x). A tabela abaixo é do saneamento de 2026-08-21 e fica só como histórico do que
+> motivou o piso do domínio de teste em rota nula.
+
 | Item | Estado (2026-08-21) |
 |---|---|
 | **Terraform** | **1.15.x** |
