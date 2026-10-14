@@ -17,7 +17,7 @@ Pendente de release (sem bump de versão): a skill nova `schematize-docker` pass
 - `references/entrega.md` §4 (imagem de container), `references/isolamento.md` §3 (container por serviço), `references/resiliencia.md` §5 (imagem/hardening) e `references/segredos.md` §1 (segredo em camada) viram **ponteiro** para `schematize-docker -> references/dockerfile.md`, `-> supply-chain.md` e `-> runtime.md`; ficam aqui só o user Linux + systemd do host, o deploy consumindo imagem assinada por digest e a verificação na admissão.
 - `SKILL.md`: entrada da `schematize-docker` na "Relação com as outras skills" e no mapa de references.
 
-## [Não publicado]
+## [Não lançado]
 Entrada pendente (sem bump): a IaC específica de Terraform/OpenTofu ganha dona.
 
 ### Alterado
