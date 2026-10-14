@@ -16,6 +16,9 @@ Gates com nome honesto, observabilidade sem duplicar a base, IaC dividido.
 - **Description** reduzida (~270 chars) para caber no orçamento de listagem (soma das 31 skills ≤ 8500; o Claude Code corta a listagem acima disso).
 - `order` do `skill.toml` 16 → 24 (colidia com schematize-desktop).
 
+### Alterado
+- `scripts/check-external-effects{,.test}.sh` viram arquivos herdados da engineering (cabeçalho "herdado de schematize-engineering — não edite aqui"); conteúdo inalterado.
+
 ## [0.4.0] — 2026-08-21
 Segunda leva do saneamento (inventário da vistoria).
 
