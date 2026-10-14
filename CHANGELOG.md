@@ -4,6 +4,17 @@ Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https:
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 
+## [0.7.0] — 2026-10-14
+Fecha o gate da skill-dev e aponta para as irmãs novas.
+
+### Adicionado
+- `scripts/check-isolamento.test.sh` e `scripts/check-observabilidade.test.sh`: vermelho plantado por regra (unit sem `User=`/root/sem hardening, Dockerfile sem `USER`/root, banco com `ports:`, sem liveness/readiness, readiness apelido, PII em log) mais o fail-closed (exit 2). Motivo: gate sem vermelho visto é decoração.
+- Blocos herdados `engineering/orquestracao` e `engineering/precedencia` no `SKILL.md` e `assets/CLAUDE.md`.
+
+### Alterado
+- `description` reduzida a <=190 caracteres (orçamento do catálogo).
+- Ponteiros em vez de detalhe: backup/PITR de Postgres -> `schematize-postgres → references/backup-e-pitr.md`; resposta a incidente/postmortem -> `schematize-incident`; segredo commitado (purga, rotação) -> `schematize-git → references/segredos.md`. O piso fica aqui; o mecanismo mora na dona.
+
 ## [0.6.0] — 2026-10-14
 Paridade OpenTofu/Terraform: a infra não prefere nenhuma das duas ferramentas.
 

@@ -22,12 +22,17 @@
   ensaiado periodicamente** (DR drill / game day) num ambiente limpo, cronometrado contra o RTO,
   verificado contra o RPO. Backup que ninguém restaurou é dado corrompido esperando o incidente pra
   se revelar.
+- **Postgres tem dona.** Backup base + WAL, PITR, `pg_dump` vs físico, retenção e o restore de banco
+  passo a passo: `schematize-postgres → references/backup-e-pitr.md`. Aqui fica o piso (RPO/RTO
+  escritos, drill cronometrado, canário); lá, o mecanismo.
 - **3-2-1:** 3 cópias, 2 mídias, 1 offsite. Backup **cifrado** (em trânsito e repouso) e com
   **acesso separado** do sistema principal (ransomware não pode cifrar o backup junto). Considere
   cópia **imutável**/WORM pra billing/auditoria.
 - **Backup ANTES de migração destrutiva** (`iac.md`, `entrega.md`): migração de schema é
   **reversível** (`down` testado) e precedida de backup. `reset`/apagar dado é comando **gated, só
   dev/hml**, nunca prd (`isolamento.md` §5).
+- **Resposta ao incidente** (papéis, SEV, comunicação, postmortem blameless) é da
+  `schematize-incident`; o drill reprovado abre incidente por lá.
 - **Runbook de DR** ensaiado: passo a passo de "a região caiu, e agora?" — quem faz o quê, em que
   ordem, com que comando do ops. Registre o resultado do drill no archive.
 

@@ -100,7 +100,7 @@ groups:
   ordem; **2)** medir enviados/bounce/complaint/spam trap no painel do provedor; **3)** acima do
   limiar, **pausar todo envio** daquele subdomínio e abrir ticket com o provedor **antes** que ele
   suspenda a conta; **4)** voltar por **warm-up** gradual, nunca no volume normal; **5)** o
-  post-mortem fecha **com a camada implantada**, não com "combinamos de tomar cuidado".
+  post-mortem (`schematize-incident`) fecha **com a camada implantada**, não com "combinamos de tomar cuidado".
 - **Webhook de bounce/complaint do provedor** assinado e consumido (SNS/webhook) — é o que
   alimenta os contadores acima; sem ele, você descobre a reputação queimada pelo suporte.
 

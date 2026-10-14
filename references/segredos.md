@@ -70,6 +70,10 @@ Segredo real encontrado no repo, em log, no rastro do archive, num screenshot �
 4. **Registrar no archive** (incidente + rotação) e, se recorrente, um ADR de causa-raiz (por que
    um segredo chegou ali? falta de scan? processo? — conserta o processo, não só o sintoma).
 
+> Mecânica de purga do histórico, rotação do que vazou e push protection:
+> `schematize-git → references/segredos.md`. Condução da resposta (SEV, papéis, comunicação,
+> postmortem): `schematize-incident`.
+
 > A auditoria/o scan que **acha segredo no rastro sinaliza rotação**, nunca só "remova a linha".
 > Sanitize evidências: nunca cole segredo/credencial/dado real de cliente em relatório ou archive.
 

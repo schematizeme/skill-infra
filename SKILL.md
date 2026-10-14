@@ -3,8 +3,7 @@ name: schematize-infra
 metadata:
   version: 0.6.0
 description: >-
-  Infra/SRE: isolamento por serviço, IaC, CI/CD gated, segredos, backup/DR, rede/TLS, supply chain. Use ao projetar ou
-  operar infra, deploy, systemd unit, pipeline ou hardening. Docker, Terraform, observabilidade: skills próprias.
+  Infra/SRE: isolamento por serviço, IaC, CI/CD gated, segredos, backup/DR, rede/TLS. Use ao operar infra, deploy, systemd unit, pipeline. Docker, Terraform, observabilidade: skills próprias.
 ---
 
 <!-- cross-skill: dockerfile.md, supply-chain.md, runtime.md -> schematize-docker -->
@@ -57,7 +56,7 @@ sem comando nem gate. Agora:
 | `scripts/dr-drill.sh --frescor` | idem | nenhum relatório (restore **nunca** provado) · último drill velho demais · último drill reprovado |
 | `scripts/check-isolamento.sh` | `isolamento.md` | unit sem `User=` ou com root · sem hardening · `Dockerfile` sem `USER` · banco com `ports:` publicado · **repo sem artefato nenhum** (exit 2) |
 | `scripts/check-observabilidade.sh` | `observabilidade.md` | sem liveness/readiness · **readiness apelido do liveness** · PII/segredo em chamada de log |
-| `scripts/dr-drill.test.sh` · `scripts/check-gates.test.sh` | os gates | 27 casos ao todo, a maioria vermelhos de propósito |
+| `scripts/dr-drill.test.sh` · `scripts/check-gates.test.sh` · `scripts/check-isolamento.test.sh` · `scripts/check-observabilidade.test.sh` | os gates | casos vermelhos plantados de propósito (um arquivo de teste por gate) |
 
 ## Como usar esta skill
 
@@ -149,6 +148,34 @@ Independente do reference, estes limites nunca são cruzados:
     transacional de **produção** — inclusive o **OTP de login** — e custa **semanas de warm-up**,
     com utilidade zero. Não tem undo. Camada faltando é **bug de infra**, não descuido de quem rodou.
     Detalhe: `iac-efeitos-externos.md` §7, `segredos.md` §7, `observabilidade.md` §9.
+
+## Precedência e herança (leia antes de divergir)
+
+<!-- herdado:engineering/precedencia:dominio intro="Esta skill é o recorte **infra/SRE** (isolamento, deploy gated, segredos, backup/DR) da `schematize-engineering`, agnóstico de linguagem: ela opera o serviço de qualquer stack do rol." cmd="infra" -->Esta skill é o recorte **infra/SRE** (isolamento, deploy gated, segredos, backup/DR) da `schematize-engineering`, agnóstico de linguagem: ela opera o serviço de qualquer stack do rol.
+
+1. **Onde esta skill divergir da base, a BASE MANDA.** Aqui mora a especialização do domínio ou da
+   ferramenta — o como, o padrão, o gate. Divergência de *piso* é defeito desta skill, não variante local.
+2. **O que não está repetido aqui é HERDADO, não dispensado.** Esta skill herda os pisos da base e
+   os comandos dela cobrem o **domínio**, não o piso geral. Valem integralmente, sem cópia local:
+   - **§28 Archive** — `<projeto>/<projeto>_archive/` é **repositório git próprio, PRIVADO e
+     obrigatório**, criticidade 0 (`schematize-archive`).
+   - **§35 Definition of Done** e a lista de anti-padrões (citada por **título**, nunca por número).
+   - **§39 Índice/MAPA** — enumeração exaustiva (uma entrada por unidade chamável, `M == N`) e grafo
+     com arestas em ASCII (`A -> B`), nunca a seta unicode.
+   - **IAM** (`schematize-engineering` → `references/iam.md`): identidade ≠ email, ≥2 fatores, ReBAC
+     multi-tenant, argon2id-only para senha nova, sessão longa e logout irreversível.
+   - **Efeito externo** nunca sai de não-produção (`schematize-engineering` →
+     `references/efeitos-externos.md`).
+   - **Orquestração** (`schematize-engineering` → `references/orquestracao.md` §9): o principal não
+     desenvolve (é Claude Opus); executor mais barato que resolve — `haiku`/`sonnet` → Codex Terra → Cursor → `opus` só após falha; visual direto ao Codex; imagem nunca pelo Claude: detecta Codex/Gemini e pergunta ao usuário qual usar (Codex é a sugestão, não automática), nunca API paga.
+3. **QA, ops, IAM e índice não têm comando próprio aqui:** vêm da base `/eng-*`. Para trabalho
+   contínuo use `/eng-overdev`; para planejar `/eng-plan`; para varrer a base `/eng-scan`; para
+   revisão geral `/eng-review` (e `/eng-ops`, `/eng-iam`, `/eng-index`). Os comandos
+   `/infra-*` cobrem o domínio desta skill; o piso geral é o da base.<!-- /herdado -->
+
+## Orquestração
+
+<!-- herdado:engineering/orquestracao:curto -->**Orquestrador não desenvolve; subagent barato executa.** O agent principal só planeja, despacha e revisa; ação onerosa vira micro-tasks para o executor mais barato que resolve: `haiku` (mecânico) / `sonnet` (código; falhou → mesmo subagent corrige, até 2 rodadas) → Codex `gpt-5.6-terra` → Cursor → subagent `opus` (motivo) → `park`; **visual vai direto ao Codex**; **imagem nunca pelo Claude: detectar Codex/Gemini e perguntar ao usuário qual usar (Codex é a sugestão), nunca API de imagem paga**; papéis em `agentes.toml`. No overdev, cada item do checklist vai a um subagent e o principal revisa antes do `- [x]`. **Sem frota ociosa:** idle com pendência volta ao trabalho; dependente de outro agent → mata e enfileira com gatilho; terminou → mata (§9.6). Detalhe: `schematize-engineering` → `references/orquestracao.md` §9.<!-- /herdado -->
 
 ## Relação com as outras skills
 

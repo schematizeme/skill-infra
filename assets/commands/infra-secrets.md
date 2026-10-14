@@ -17,7 +17,8 @@ Varra código, config, `.env` versionado, layer de imagem, `.github/workflows`, 
 
 **Achou segredo real → é INCIDENTE:** sinalize **rotação imediata** (revoga a antiga no provedor/
 cofre — apagar o commit NÃO basta), purga do histórico (`git filter-repo`/BFG), investiga uso
-indevido na janela de exposição, registra no archive. Nunca cole o segredo no relatório (sanitize).
+indevido na janela de exposição, registra no archive. Mecânica de purga e rotação: `schematize-git → references/segredos.md`; condução do incidente:
+`schematize-incident`. Nunca cole o segredo no relatório (sanitize).
 
 ## 2. Onde o segredo DEVE estar (§2)
 Cofre dedicado (Vault / Secret Manager / SOPS+age / sealed-secrets / External Secrets), **cifrado
