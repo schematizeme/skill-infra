@@ -10,7 +10,7 @@
 
 > **Fronteira.** Este arquivo guarda o que vale para **qualquer** ferramenta declarativa (Terraform/
 > OpenTofu, Helm, Kustomize, cloud-init, Ansible declarativo). Tudo o que é **específico de
-> Terraform/OpenTofu** — escolha da ferramenta, layout de repo, backend e criptografia do state, pins
+> Terraform/OpenTofu** — escolha da ferramenta (OpenTofu e Terraform em paridade, uma por repo, sem default nem ADR obrigatório), layout de repo, backend e criptografia do state, pins
 > e lock file, contrato de módulo, `ephemeral`/write-only, fluxo de plan/apply no CI, `moved`/`import`/
 > `removed`, testes e política — é da **`schematize-terraform`** e mora lá. Abaixo, onde o texto
 > era de Terraform, ficou o princípio e um ponteiro.
@@ -56,7 +56,7 @@ O state (Terraform/OpenTofu e afins) é sensível e crítico. O piso de platafor
 - **Um state por ambiente e por stack** (blast radius), com credencial separada para prd.
 
 O *como* em Terraform/OpenTofu — backend `s3` com `use_lockfile` (o `dynamodb_table` está
-deprecado), criptografia nativa do state no OpenTofu, `moved`/`import`/`removed` no lugar de
+deprecado), criptografia do state (nativa no cliente no OpenTofu; no Terraform, backend com KMS e acesso restrito: em claro é vetado nas duas), `moved`/`import`/`removed` no lugar de
 `state mv` —: `schematize-terraform → references/state.md` e `references/fluxo.md`.
 
 ## 4. Drift detection — o mundo não pode divergir do código

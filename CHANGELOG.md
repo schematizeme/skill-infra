@@ -4,6 +4,12 @@ Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https:
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 
+## [0.6.0] — 2026-10-14
+Paridade OpenTofu/Terraform: a infra não prefere nenhuma das duas ferramentas.
+
+### Alterado
+- `references/iac.md` e `SKILL.md`: a escolha da ferramenta (OpenTofu e Terraform em paridade, uma por repo, sem default nem ADR obrigatório) é da `schematize-terraform`; o piso de state diz que state em claro é vetado nas duas (OpenTofu cifra no cliente; Terraform exige backend com KMS e acesso restrito). Motivo: decisão de paridade; o texto anterior nomeava só a criptografia do OpenTofu.
+
 ## [0.5.1] — 2026-10-14
 A observabilidade ganhou dona (`schematize-observability`).
 
