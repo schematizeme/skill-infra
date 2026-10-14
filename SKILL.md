@@ -3,7 +3,9 @@ name: schematize-infra
 metadata:
   version: 0.4.0
 description: >-
-  Infra/DevOps/SRE da casa: isolamento por serviço, IaC, CI/CD gated, containers, segredos, observabilidade, backup/DR, rede/TLS e cadeia de suprimentos. Use ao projetar, revisar ou operar infra, deploy, Dockerfile, Terraform, systemd unit, pipeline de CI, segredo, backup ou hardening.
+  Infra/DevOps/SRE: isolamento por serviço, IaC, CI/CD gated, containers, segredos, observabilidade, backup/DR,
+  rede/TLS e cadeia de suprimentos. Use ao projetar, revisar ou operar infra, deploy, Dockerfile, Terraform, systemd
+  unit, pipeline de CI, segredo, backup ou hardening.
 ---
 
 # Infraestrutura/DevOps/SRE da casa (schematize-infra)

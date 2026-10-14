@@ -13,6 +13,8 @@ Gates com nome honesto, observabilidade sem duplicar a base, IaC dividido.
 - `references/observabilidade.md`: stack LGTM, logs, RED/USE, tracing e auditoria viraram ponteiro para `schematize-engineering → references/observabilidade.md`; ficou o que é de infra (healthchecks, SLO/alertas, efeito externo).
 - `references/iac.md` (295 linhas) dividido: o §7 (DNS/rede/SMTP como código) foi para `references/iac-efeitos-externos.md`, mantendo a numeração §7.x; links atualizados.
 - `description` com 350 caracteres ou menos (era 1021).
+- **Description** reduzida (~270 chars) para caber no orçamento de listagem (soma das 31 skills ≤ 8500; o Claude Code corta a listagem acima disso).
+- `order` do `skill.toml` 16 → 24 (colidia com schematize-desktop).
 
 ## [0.4.0] — 2026-08-21
 Segunda leva do saneamento (inventário da vistoria).
