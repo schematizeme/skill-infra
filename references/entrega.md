@@ -1,3 +1,4 @@
+<!-- cross-skill: dockerfile.md, supply-chain.md -> schematize-docker -->
 # Entrega — CI/CD gated, container e orquestração
 
 > A casa promove software por um **trilho fixo** e, onde exige, **gated/manual**. Nada pula etapa,
@@ -51,17 +52,14 @@ Nem todo deploy é automático — a casa **gateia** onde quer controle:
   em `iac-efeitos-externos.md` §7 e `segredos.md` §7; a normativa é a `schematize-engineering`
   (`references/efeitos-externos.md`).
 
-## 4. Imagem de container — não-root, mínima, pinada
+## 4. Imagem de container — ponteiro
 
-- **Multi-stage build:** toolchain só no estágio de build; a imagem final carrega **só o binário e
-  o runtime necessário**.
-- **Base mínima e pinada por digest** (`@sha256:...`), **nunca** tag móvel (`latest`/`1`).
-  Distroless / chainguard / scratch / Alpine quando viável — menos pacote, menos CVE.
-- **Não-root, filesystem read-only, `drop ALL` capabilities**, healthcheck na imagem
-  (`isolamento.md` §3).
-- **SBOM gerado no build e versionado junto ao artefato**; scan de imagem (`trivy`/`grype`) que
-  **trava** em `high`/`critical` sem ADR; **imagem assinada** (cosign) e **assinatura verificada
-  na admissão** (`resiliencia.md`).
+A imagem (Dockerfile, multi-stage, base mínima pinada por digest, não-root, `.dockerignore`, cache e
+segredo de build pelo BuildKit), o SBOM/provenance, o scan que trava, a assinatura cosign e a tag
+imutável = sha do git são da **`schematize-docker`**: `schematize-docker -> references/dockerfile.md`
+e `schematize-docker -> references/supply-chain.md`. Esta skill cobra o que fica do lado da
+entrega: o deploy consome **só** a imagem assinada, por **digest**, promovida do CI, e **verifica a
+assinatura na admissão** (`resiliencia.md`).
 
 ## 5. Orquestração e estratégia de deploy
 

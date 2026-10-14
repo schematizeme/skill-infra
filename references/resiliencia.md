@@ -1,4 +1,5 @@
 <!-- cross-skill: cadeia-suprimentos.md -> schematize-engineering -->
+<!-- cross-skill: dockerfile.md, supply-chain.md, runtime.md -> schematize-docker -->
 # Resiliência — backup & DR, rede/TLS/hardening, cadeia de suprimentos
 
 > Três frentes que decidem se o sistema **sobrevive** ao dia ruim: o dado volta depois do desastre
@@ -55,7 +56,7 @@
 - **IAM de nuvem least-privilege:** política com **ação e recurso específicos**, nunca `"*"`.
   Sem chave estática de longa vida — **OIDC/workload identity** com credencial de curta duração
   (`segredos.md`). Sem credencial de root/owner em automação.
-- **Container/host hardened** (`isolamento.md`): não-root, read-only, `drop ALL` capabilities,
+- **Container/host hardened** (`isolamento.md`; flags em `schematize-docker -> references/runtime.md`): não-root, read-only, `drop ALL` capabilities,
   `seccomp`, `NoNewPrivileges`, imagem mínima. Host com patch em dia, SSH por chave (sem senha),
   sem porta desnecessária aberta.
 - **Superfície mínima:** menos serviço exposto, menos pacote instalado, menos permissão concedida
@@ -78,8 +79,8 @@ build e dependência como **superfície de ataque de primeira classe** (`cadeia-
 - **Scan que trava:** SAST (Semgrep/CodeQL), SCA (deps + licenças), container scan (Trivy/Grype),
   secret scan (Gitleaks) — **travam o merge** em `high`/`critical` sem ADR de aceite datado.
   Vulnerabilidade aceita conscientemente vira **ADR com prazo**, não silêncio.
-- **Imagem:** base **pinada por digest** (`@sha256`), multi-stage, não-root/read-only; rebuild
-  periódico pra absorver patch da base (`entrega.md` §4).
+- **Imagem:** pinada por digest, multi-stage, não-root; rebuild periódico para absorver patch da base —
+  o como é da `schematize-docker -> references/dockerfile.md` e `-> references/supply-chain.md`.
 - **Proveniência (SLSA):** **build só no CI** (não na máquina do dev pra prd), a partir do código
   versionado — o pipeline é parte da TCB. **Assinar** o artefato/imagem (cosign/sigstore) e
   **verificar a assinatura na admissão** (deploy só aceita imagem assinada por pipeline confiável —

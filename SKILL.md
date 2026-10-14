@@ -8,6 +8,8 @@ description: >-
   unit, pipeline de CI, segredo, backup ou hardening.
 ---
 
+<!-- cross-skill: dockerfile.md, supply-chain.md, runtime.md -> schematize-docker -->
+
 # Infraestrutura/DevOps/SRE da casa (schematize-infra)
 
 Disciplina normativa, **agnóstica de linguagem**, que responde a uma pergunta só: **este sistema
@@ -85,7 +87,7 @@ Mapa de references — leia o que casa com a tarefa:
 |---|---|
 | Isolamento por aplicação: user Linux dedicado + systemd hardened + container por serviço, blast radius, layout `/<app>/`, provisionamento pelo ops | `references/isolamento.md` |
 | IaC declarativa/idempotente/revisável, plan-before-apply, state seguro, drift detection, artefato imutável, o ops como interface única | `references/iac.md` |
-| CI/CD com deploy **gated/manual**, fluxo fixo de promoção, imagem de container (não-root/read-only/distroless/multi-stage), estratégia de deploy + healthcheck gating + rollback | `references/entrega.md` |
+| CI/CD com deploy **gated/manual**, fluxo fixo de promoção, estratégia de deploy + healthcheck gating + rollback (a **imagem** — Dockerfile, BuildKit, compose, SBOM/assinatura, tag imutável — é da `schematize-docker`) | `references/entrega.md` |
 | Gestão de segredos: nunca no repo/layer, cofre, rotação, secret scan, referência pelo seed, rotação em caso de vazamento | `references/segredos.md` |
 | Observabilidade: logs/métricas/traços (RED/USE), SLO/error budget, alertas versionados, healthchecks, trilha de auditoria imutável | `references/observabilidade.md` |
 | Backup & DR (RPO/RTO, restore testado), redes/TLS/mTLS/hardening (deny-by-default, least-privilege), cadeia de suprimentos (SBOM/pinning/assinatura/SLSA) | `references/resiliencia.md` |
@@ -156,6 +158,12 @@ Independente do reference, estes limites nunca são cruzados:
   §2/§3), o **deploy e o fluxo de promoção** (operacao.md §21), a **observabilidade LGTM+** (§16),
   a **cadeia de suprimentos** (SBOM/pinning/assinatura) e o **archive** (§28). Onde a engenharia
   diz "o servidor é imutável por edição manual", esta skill diz **como** garantir isso.
+- **schematize-docker** — a especialista do **artefato/imagem** e do **runtime de container**
+  (Dockerfile, `.dockerignore`, BuildKit, compose de dev/hml, registry/tags, SBOM/provenance,
+  cosign, scan, flags de runtime, rootless/Podman). Esta skill fica com o **onde e com quem a imagem
+  roda** (user Linux + systemd, deploy gated, orquestração, cofre, observabilidade) e exige que o
+  deploy consuma a imagem assinada por digest; `schematize-docker -> references/dockerfile.md`,
+  `-> references/supply-chain.md`, `-> references/runtime.md`.
 - **schematize-pentest** — o **oráculo** do hardening. A infra fecha a porta (deny-by-default,
   least-privilege, mTLS, container hardened); a pentest **prova** que fechou (SSRF, exposição de
   segredo, escalonamento, cross-tenant). Um hardening "revisei e tá seguro" sem teste que prove a

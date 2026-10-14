@@ -1,3 +1,4 @@
+<!-- cross-skill: runtime.md, dockerfile.md, check-dockerfile.sh, check-compose.sh -> schematize-docker -->
 # Isolamento por aplicação — blast radius mínimo por design
 
 > A casa **não** roda dois serviços no mesmo saco. Cada serviço vive **confinado** — user Linux
@@ -54,17 +55,17 @@ MemoryMax=…  TasksMax=…                    # limite de recurso (evita um ser
 - **Limite de recurso** (`MemoryMax`, `TasksMax`, `CPUQuota`) — um serviço em loop não estrangula
   os vizinhos.
 
-## 3. Container por serviço — não-root, read-only, mínimo
+## 3. Container por serviço — ponteiro
 
-Onde há container (o padrão), o mesmo princípio em outra camada (defesa em profundidade):
-
-- **Não-root** (`USER` não-privilegiado no Dockerfile; `runAsNonRoot: true` no k8s).
-- **Filesystem read-only** (`readOnlyRootFilesystem: true`), com volume de escrita só onde precisa.
-- **`no-new-privileges`**, `drop ALL` de capabilities e adiciona só o necessário; `seccomp`
-  default (ou perfil dedicado).
-- **Imagem mínima** — distroless / chainguard / scratch / Alpine, **multi-stage** (toolchain só no
-  estágio de build). Menos pacote = menos CVE. Detalhe de imagem em `entrega.md` e `resiliencia.md`.
-- **Um serviço por container/pod**; sidecar só quando justificado. Sem "container-tudo".
+Onde há container (o padrão), o mesmo princípio vale em outra camada (defesa em profundidade): não-root,
+filesystem read-only, `no-new-privileges`, `drop ALL`, imagem mínima, **um serviço por container**.
+A **configuração** do container e da imagem (Dockerfile, flags de runtime, limites, rootless) é da
+**`schematize-docker`**: `schematize-docker -> references/runtime.md` e
+`schematize-docker -> references/dockerfile.md`. Daqui continuam o **user Linux dedicado** e o
+**unit systemd hardened** do host (§1–§2) — a docker não os substitui, e eles não substituem o
+container não-root. O gate `scripts/check-isolamento.sh` segue cobrando `USER` e banco publicado;
+`schematize-docker -> scripts/check-dockerfile.sh` e `schematize-docker -> scripts/check-compose.sh`
+cobrem o resto da imagem e do compose.
 
 ## 4. Isolamento de rede — deny-by-default
 

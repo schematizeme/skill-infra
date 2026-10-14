@@ -1,3 +1,4 @@
+<!-- cross-skill: dockerfile.md, check-dockerfile.sh -> schematize-docker -->
 # Segredos — nunca no repo, cofre + rotação, scan que trava
 
 > Segredo é a chave do reino. A casa trata segredo como **radioativo**: nunca no repo, nunca em
@@ -15,8 +16,9 @@ solução, é **vazamento agendado**.
 - **No git** — nem em `.env` commitado, nem em arquivo de config versionado, nem em comentário,
   nem em issue/PR/commit message.
 - **Em layer de imagem** — `ARG`/`ENV` persistido, `COPY .env`, `RUN echo $SECRET`. Layer é
-  **inspecionável** (`docker history`, extração de camada). Segredo de build só via mecanismo
-  **efêmero** (BuildKit secret mount), que não vira layer.
+  **inspecionável** (`docker history`, extração de camada). Segredo de build só por mecanismo
+  **efêmero** (BuildKit secret mount) — a receita e o gate são da
+  `schematize-docker -> references/dockerfile.md` e `schematize-docker -> scripts/check-dockerfile.sh`.
 - **No bundle do front** — `NEXT_PUBLIC_`/`VITE_`/`PUBLIC_` **expõe por definição**; usar só pra
   valor de outdoor (URL pública, id de analytics público). Service-role key / admin SDK no client
   é CVE.
